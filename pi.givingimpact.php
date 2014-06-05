@@ -152,8 +152,7 @@ class Plugin_givingimpact extends Plugin {
         $out = array();
 
         $donations = $this->prefix_tags('donation', json_decode(json_encode($donations), true));
-print_r($donations);
-exit;
+
         foreach( $donations as $donation ) {
             $out[] = Parse::template($content, $donation);
         }
