@@ -18,6 +18,7 @@ class Plugin_givingimpact extends Plugin {
     private $sort = 'created_at';
     private $dir = 'asc';
     private $status = 'active';
+    private $related = false;
 
     private $max_limit = 100;
 
@@ -74,9 +75,11 @@ class Plugin_givingimpact extends Plugin {
         $limit = $this->limit();
         $offset = $this->offset();
         $sort = $this->sort();
+        $related = $this->related();
 
         if( $token ) {
             $opportunities = $this->gi()->opportunity
+                ->related($related)
                 ->fetch($token);
             $opportunities = array($opportunities);
         } else {
@@ -86,6 +89,7 @@ class Plugin_givingimpact extends Plugin {
                 ->limit($limit)
                 ->offset($offset)
                 ->sort($sort)
+                ->related($related)
                 ->fetch();
         }
 
@@ -115,6 +119,7 @@ class Plugin_givingimpact extends Plugin {
         $limit = $this->limit();
         $offset = $this->offset();
         $sort = $this->sort();
+        $related = $this->related();
 
         if( $token ) {
             $donations = $this->gi()->donation
@@ -125,6 +130,7 @@ class Plugin_givingimpact extends Plugin {
             if( $campaign_token ) {
                 $donations = $this->gi()
                     ->campaign
+                    ->related($related)
                     ->fetch($campaign_token)
                     ->donations;
             } else {
@@ -138,6 +144,7 @@ class Plugin_givingimpact extends Plugin {
                 ->limit($limit)
                 ->offset($offset)
                 ->sort($sort)
+                ->related($related)
                 ->fetch();
         }
 
@@ -145,7 +152,8 @@ class Plugin_givingimpact extends Plugin {
         $out = array();
 
         $donations = $this->prefix_tags('donation', json_decode(json_encode($donations), true));
-
+print_r($donations);
+exit;
         foreach( $donations as $donation ) {
             $out[] = Parse::template($content, $donation);
         }
@@ -160,9 +168,11 @@ class Plugin_givingimpact extends Plugin {
         $limit = $this->limit();
         $offset = $this->offset();
         $sort = $this->sort();
+        $related = $this->related();
 
         if( $token ) {
             $supporters = $this->gi()->supporter
+                ->related($related)
                 ->fetch($token);
             $supporters = array($supporters);
         } else {
@@ -171,6 +181,7 @@ class Plugin_givingimpact extends Plugin {
                 ->limit($limit)
                 ->offset($offset)
                 ->sort($sort)
+                ->related($related)
                 ->fetch();
         }
 
@@ -197,6 +208,10 @@ class Plugin_givingimpact extends Plugin {
         $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key);
 
         return $this->api_handle;
+    }
+
+    private function related() {
+        return $this->fetchParam('related', $this->related);
     }
 
     private function limit() {
