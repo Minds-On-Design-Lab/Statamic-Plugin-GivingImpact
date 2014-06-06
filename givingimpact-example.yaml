@@ -1,0 +1,8 @@
+# Giving Impact Statamic Plugin config
+#
+# Simply enter your public and private key below
+# drop this file into _config/givingimpact/
+#
+
+_private_key: "YOUR PRIVATE KEY"
+_public_key: "YOUR PUBLIC KEY"
