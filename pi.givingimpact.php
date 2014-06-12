@@ -196,6 +196,128 @@ class Plugin_givingimpact extends Plugin {
         return implode('', $out);
     }
 
+    public function donate_js() {
+        $apiUrl = $this->gi()->endpoint();
+        $publicKey =  $this->fetchConfig('_public_key');
+
+        $formId = $this->fetchParam('id') ? $this->fetchParam('id') : 'donate-form';
+
+$out = <<<END
+<script type="text/javascript" src="{$apiUrl}/checkout?key={$publicKey}"></script>
+<script>
+    (function(\$) {
+        \$(function() {
+
+            $('#{$formId}').submit(function(e) {
+                if( $(this).find('input[name="token"]').length >= 1 ) {
+                    return;
+                }
+
+                e.preventDefault();
+                var \$this = \$(this).find('input[type="submit"]');
+
+                \$this.val('Processing...');
+                \$this.attr('disabled', true);
+
+                GIAPI.checkout({
+                    'card':     \$('[name="cc_number"]').val(),
+                    'cvc':      \$('[name="cc_cvc"]').val(),
+                    'month':    \$('[name="cc_exp"]').val().substr(0,2),
+                    'year':     \$('[name="cc_exp"]').val().substr(5,4),
+                }, function(token) {
+                    if( \$('#_carderr').length >= 1 ) {
+                        \$('#_carderr').remove();
+                    }
+
+                    if( !token ) {
+                        \$('[name="cc_number"]').addClass('error');
+                        \$('<span class="radius alert label" id="_carderr">Your card was not accepted</span>').insertAfter(\$('[name="cc_number"]'));
+                        \$this.val('Donate');
+                        \$this.attr('disabled', false);
+                        return;
+                    }
+                    // the card token is returned, append to form and submit
+                    \$('#donate-form').append($('<input type="hidden" value="'+token+'" name="token" />'));
+                    \$('#donate-form').submit();
+                });
+            })
+        });
+    })(jQuery);
+</script>
+END;
+
+        return $out;
+
+    }
+
+    public function donate_form() {
+        $tagdata = $this->content;
+
+        // if( $this->fetchParam('opportunity') ) {
+        //     $opportunities = $this->gi()->opportunity
+        //         ->related(1)
+        //         ->fetch($this->fetchParam('opportunity'));
+        // } else {
+        //     $campaigns = $this->gi()->campaign
+        //         ->related(1)
+        //         ->fetch($this->fetchParam('campaign'));
+        // }
+
+        $vars = array(
+            'value_first_name'  => false,
+            'value_last_name'   => false,
+            'value_email'       => false,
+            'value_street'      => false,
+            'value_city'        => false,
+            'value_state'       => false,
+            'value_zip'         => false,
+            'value_donation_amount'     => false,
+            'value_donation_level'      => false,
+            'valud_donation_level_id'   => false
+        );
+
+        if( Session::getFlash('formvals') ) {
+            $vals = unserialize(Session::getFlash('formvals'));
+            if( $vals && count($vals) ) {
+                foreach( $vals as $k => $v ) {
+                    $vars['value_'.$k] = $v;
+                }
+            }
+        }
+
+        // $vars = array_merge($vars, $obj[0]);
+
+        $tag_start = sprintf(
+            '<form method="POST" action="%s" id="%s" class="%s" enctype="multi">',
+            URL::format('/TRIGGER/givingimpact/post_opportunity'),
+            $this->fetchParam('id'),
+            $this->fetchParam('class')
+        );
+
+        $h = '<input type="hidden" name="%s" value="%s" />';
+        $tag_start .= sprintf($h, 't', $this->fetchParam('campaign'));
+        $tag_start .= sprintf($h, 'ot', $this->fetchParam('opportunity'));
+
+        // If return parameter is used, add to hidden_fields
+
+        if ($this->fetchParam('return', false)) {
+            $tag_start .= sprintf($h, 'NXT', $this->fetchParam('return'));
+        }
+
+        // If notify parameter is user, add to hidden_fields
+
+        if ($this->fetchParam('notify', false)) {
+            $tag_start .= sprintf($h, 'NTF', $this->fetchParam('notify'));
+        }
+
+        // Create form wrapper
+
+        $content = $tag_start . $tagdata . '</form>';
+
+        return $content;
+    }
+
+
     private function gi() {
         if( $this->api_handle ) {
             return $this->api_handle;
