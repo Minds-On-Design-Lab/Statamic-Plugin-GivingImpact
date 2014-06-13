@@ -289,8 +289,8 @@ END;
 
         $tag_start = sprintf(
             '<form method="POST" action="%s" id="%s" class="%s" enctype="multi">',
-            URL::format('/TRIGGER/givingimpact/post_opportunity'),
-            $this->fetchParam('id'),
+            URL::format(Config::getSiteRoot().'TRIGGER/givingimpact/post_donation'),
+            'donate-form',
             $this->fetchParam('class')
         );
 
