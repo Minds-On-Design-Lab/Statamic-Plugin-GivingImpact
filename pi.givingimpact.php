@@ -203,7 +203,7 @@ class Plugin_givingimpact extends Plugin {
         $formId = $this->fetchParam('id') ? $this->fetchParam('id') : 'donate-form';
 
 $out = <<<END
-<script type="text/javascript" src="{$apiUrl}/checkout?key={$publicKey}"></script>
+<script type="text/javascript" src="{$apiUrl}/v2/checkout?key={$publicKey}"></script>
 <script>
     (function(\$) {
         \$(function() {
@@ -300,8 +300,10 @@ END;
 
         // If return parameter is used, add to hidden_fields
 
-        if ($this->fetchParam('return', false)) {
+        if($this->fetchParam('return', false) ) {
             $tag_start .= sprintf($h, 'NXT', $this->fetchParam('return'));
+        } else {
+            $tag_start .= sprintf($h, 'NXT', URL::getCurrent(true));
         }
 
         // If notify parameter is user, add to hidden_fields

@@ -161,6 +161,7 @@ class Hooks_givingimpact extends Hooks {
                 );
 
                 // $this->EE->output->show_message($data);
+                print_r($data);
                 return;
             }
         }
@@ -185,11 +186,12 @@ class Hooks_givingimpact extends Hooks {
 
         $result = $donation->create();
 
-        $new_token = $result['donation']['id_token'];
+        $new_token = $result->id_token;
 
         Session::setFlash('donation_token', $new_token);
 
-        return;
+        return URL::redirect($next.'?donation='.$new_token);
+
     }
 
     private function gi() {
