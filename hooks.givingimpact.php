@@ -26,6 +26,8 @@ class Hooks_givingimpact extends Hooks {
         $token              = Request::post('t');
         $opportunity_token  = Request::post('ot', false);
 
+        $return_path        = base64_decode(Request::post('rtp'));
+
         $first_name         = Request::post('first_name');
         $last_name          = Request::post('last_name');
         $email              = Request::post('email');
@@ -34,6 +36,7 @@ class Hooks_givingimpact extends Hooks {
         $city               = Request::post('city');
         $state              = Request::post('state');
         $zip                = Request::post('zip');
+        $donation_level     = Request::post('donation_level');
         $donation_level_id  = Request::post('donation_level_id');
         $donation_amount    = Request::post('donation_amount');
 
@@ -73,39 +76,33 @@ class Hooks_givingimpact extends Hooks {
         if( !$card ) {
             $errors[] = 'Could not process credit card';
         }
-        // if( !valid_email($email) ) {
-        //     $errors[] = 'Please enter a valid email address';
-        // }
+
+        if( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+            $errors[] = 'Please enter a valid email address';
+        }
         if( $donation_amount && $donation_amount != floor($donation_amount) ) {
             $errors[] = 'Please enter a whole dollar amount';
         }
 
-        // if( count($errors) ) {
+        if( count($errors) ) {
 
-        //     $data = array(
-        //         'title'   => 'Missing required information',
-        //         'heading' => 'Missing required information',
-        //         'content' => 'Missing required fields: '.implode(', ', $errors),
-        //         // 'link'    => array($this->EE->functions->form_backtrack('0'), 'Return to form')
-        //     );
+            Session::setFlash('formvals', serialize(array(
+                'first_name'        => $first_name,
+                'last_name'         => $last_name,
+                'email'             => $email,
+                'street'            => $street,
+                'city'              => $city,
+                'state'             => $state,
+                'zip'               => $zip,
+                'donation_level'    => $donation_level,
+                'donation_level_id' => $donation_level_id,
+                'donation_amount'   => $donation_amount,
+                'contact'           => $contact,
+                'errors'            => $this->prep_errors($errors)
+            )));
 
-        //     Session::setFlash('formvals', serialize(array(
-        //         'first_name'        => $first_name,
-        //         'last_name'         => $last_name,
-        //         'email'             => $email,
-        //         'street'            => $street,
-        //         'city'              => $city,
-        //         'state'             => $state,
-        //         'zip'               => $zip,
-        //         'donation_level'    => $donation_level,
-        //         'donation_level_id' => $donation_level_id,
-        //         'donation_amount'   => $donation_amount,
-        //         'contact'           => $contact
-        //     )));
-
-        //     // $this->EE->output->show_message($data);
-        //     return;
-        // }
+            return URL::redirect($return_path, 301);
+        }
 
         if( $token && strlen($token) ) {
             $obj = $this->gi()->campaign
@@ -150,19 +147,11 @@ class Hooks_givingimpact extends Hooks {
                     'donation_level'    => $donation_level,
                     'donation_level_id' => $donation_level_id,
                     'donation_amount'   => $donation_amount,
-                    'contact'           => $contact
+                    'contact'           => $contact,
+                    'errors'            => $this->prep_errors($errors)
                 )));
 
-                $data = array(
-                    'title'   => 'Missing required information',
-                    'heading' => 'Missing required information',
-                    'content' => 'Missing required fields: '.implode(', ', $errors),
-                    // 'link'    => array($this->EE->functions->form_backtrack('0'), 'Return to form')
-                );
-
-                // $this->EE->output->show_message($data);
-                print_r($data);
-                return;
+                return URL::redirect($return_path, 301);
             }
         }
 
@@ -205,5 +194,20 @@ class Hooks_givingimpact extends Hooks {
         $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key);
 
         return $this->api_handle;
+    }
+
+    /**
+     * Creates a multidimensional array with 'error': 'error message' so
+     * it can be properly parsed as template varluables
+     * @param  array $errors
+     * @return array
+     */
+    private function prep_errors($errors) {
+        $out = array();
+        foreach( $errors as $error ) {
+            $out[] = array('error' => $error);
+        }
+
+        return $out;
     }
 }

@@ -278,14 +278,23 @@ END;
 
         if( Session::getFlash('formvals') ) {
             $vals = unserialize(Session::getFlash('formvals'));
+            $errors = $vals['errors'];
+            unset($vals['errors']);
             if( $vals && count($vals) ) {
                 foreach( $vals as $k => $v ) {
                     $vars['value_'.$k] = $v;
                 }
             }
+            $vars['form_errors'] = $errors;
+        }
+        if( Session::getFlash('donation_token') ) {
+            $donation = $this->gi()->donation
+                ->fetch(Session::getFlash('donation_token'));
+
+            $vars['donation'] = $this->prefix_tags('donation', json_decode(json_encode(array($donation)), true));
         }
 
-        // $vars = array_merge($vars, $obj[0]);
+        $tagdata = Parse::template($tagdata, $vars);
 
         $tag_start = sprintf(
             '<form method="POST" action="%s" id="%s" class="%s" enctype="multi">',
@@ -297,6 +306,7 @@ END;
         $h = '<input type="hidden" name="%s" value="%s" />';
         $tag_start .= sprintf($h, 't', $this->fetchParam('campaign'));
         $tag_start .= sprintf($h, 'ot', $this->fetchParam('opportunity'));
+        $tag_start .= sprintf($h, 'rtp', base64_encode(URL::getCurrent(true)));
 
         // If return parameter is used, add to hidden_fields
 
