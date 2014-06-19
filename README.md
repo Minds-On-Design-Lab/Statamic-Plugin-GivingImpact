@@ -260,3 +260,129 @@ The following variables are available within this tag pair.
 | {{custom_responses_field_label}} | Returns the label of the field |
 | {{custom_responses_response}} | Returns the donor's response if entered |
 | {{custom_responses_status}} | Returns `true` or `false` depending on whether the field is currently set to active or not |
+
+#### Donation Form
+
+    {{givingimpact:donate_form
+      opportunity="######"
+      id="donate-form"
+    }}
+
+    ... form content
+
+    {{/givingimpact:donate_form}}
+
+###### Required Parameters
+
+| Parameter | Data Type | Description |
+| ------------ |:-------------|:-------------|
+| id  | STRING | The id added to form tag. PLEASE NOTE that it is critical that the id in the Javascript tag matches that in the form tag |
+| campaign **or** opportunity | STRING | id_token for either the Campaign **or** Giving Opportunity donation is towards. |
+
+###### Optional Parameters
+
+| Parameter | Data Type | Description | Default |
+| ------------ |:-------------|:-------------|:-------------|
+| return | STRING | a return URL that supports `{{path=foo/bar}}` | returns to template of form |
+| class | STRING | CSS class applied to `<form>` ||
+
+#### Validation and Required Fields
+
+##### Required Form Fields
+
+The following must be submitted otherwise your request will display an error.
+
+* first_name
+* last_name
+* email
+* contact
+* street
+* city
+* state
+* country
+* zip
+* donation_amount OR donation_level_id
+* card - Card token provided by Stripe
+
+##### Validation and Error Handling
+
+In the event of a data entry or card error, the user will be returned to your form and the `{{form_error}}{{/form_error}}` tag pair will be available. By looping through the tag pair, you'll be able to display the validation errors:
+
+    {{givingimpact:donate_form}}
+
+        {{ if form_errors }}
+            Aww nuts!
+            {{form_errors}}
+                {{error}}
+            {{/form_errors}}
+        {{endif}}
+
+        ...
+
+    {{/givingimpact:donation_form}}
+
+You may use the following variables to repopulate the form upon return from validation error.
+
+* `{{value_first_name}}`
+* `{{value_last_name}}`
+* `{{value_email}}`
+* `{{value_street}}`
+* `{{value_city}}`
+* `{{value_state}}`
+* `{{value_zip}}`
+* `{{value_donation_amount}}`
+
+#### Returned Data
+
+On successful submission and processing of form data, the API and module will return the new donations unique token. This value are returned in two ways.
+
+1. The `donation_token` will be dynamically added as a GET parameter **return** parameter detailed above.
+2. If you return to the same template that contains the form tag, you may use the `{{donation}}{{/donation}}` tag pair to get donation information.
+
+#### Campaign Example Donation Checkout Form
+
+The following is an example of a **Campaign** checkout Form. Please note that all Campaign data as detailed above is available within the form opening and closing tags. You can see examples of this in both the donation levels and custom donation fields areas.
+
+    {{givingimpact:donate_form campaign="{{campaign_token}}" return="/path/to/return"}}
+
+    <fieldset>
+      <legend>Donation</legend>
+        <label class="required">Donation Amount:</label>
+
+        <input type="text" name="donation_amount" value="{{value_donation_amount}}" />
+
+    </fieldset>
+    <fieldset>
+      <legend>Donor Information</legend>
+        <label class="required">First Name:</label>
+        <input type="text" name="first_name" value="{{value_first_name}}" />
+
+        <label class="required">Last Name:</label>
+        <input type="text" name="last_name" value="{{value_last_name}}" />
+
+        <label class="required">Email:</label>
+        <input type="text" name="email" value="{{value_email}}" />
+        <label id="may_contact"><input type="checkbox" value="1" name="contact" id="may_contact" checked /> You may contact me with future updates</label>
+
+    </fieldset>
+    <fieldset>
+      <legend>Payment Information</legend>
+        <label class="required">Address:</label>
+        <input type="text" name="street" value="{{value_street}}" placeholder="Street Address" />
+        <input type="text" name="city" value="{{value_city}}" placeholder="City" />
+        <input type="text" name="state" value="{{value_state}}" placeholder="State" />
+        <input type="text" name="zip" value="{{value_zip}}" placeholder="Zip" />
+
+        <label class="required">CC Number:</label>
+        <input type="text" name="cc_number" placeholder="1234 5679 9012 3456" />
+
+        <label class="required">CVC:</label>
+        <input type="text" name="cc_cvc" placeholder="Security code" />
+
+        <label class="required">CC EXP:</label>
+        <input type="text" name="cc_exp" placeholder="MM / YYYY" />
+
+    </fieldset>
+
+    <input type="submit" value="Donate" id="process-donation" class="button radius" />
+    {{/givingimpact:donate_form}}
