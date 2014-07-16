@@ -25,12 +25,20 @@ For more about Giving Impact and to view our full documentation and learning rea
 
 ### Menu
 
+* [Install](#install)
 * [Campaigns](#campaigns)
 * [Opportunities](#opportunities)
 * [Donations](#donations)
 * [Donation Checkout](#donation-checkoupt)
 * [Opportunity Form](#opportunity-form)
 * [Hooks](#hooks)
+
+### Install
+
+1. Download the [archive](https://github.com/Minds-On-Design-Lab/Statamic-Plugin-GivingImpact/archive/master.zip)
+2. Drop `_add_ons/givingimpact` into your Statmic install's `_add_ons` directory
+3. Copy `_config/_add_ons/givingimpact/givingimpact.yaml` to your Statmic install's `_config` directory
+4. Add your [GivingImpact](http://givingimpact.com) public and private API keys to `givingimpact.yaml`
 
 ### Campaigns
 
