@@ -20,21 +20,21 @@ class Stats extends \MODL\GivingImpact\Model {
 
     private $stack = array();
 
-	public function __construct($c, $data = false) {
-		$this->container = $c;
+    public function __construct($c, $data = false) {
+        $this->container = $c;
 
-		if( $data ) {
-		    $this->assign($data);
-		}
-	}
+        if( $data ) {
+            $this->assign($data);
+        }
+    }
 
     /**
      * Fetch stats
      *
      * @return Array
      */
-	public function fetch() {
-		$rc = $this->container->restClient;
+    public function fetch($token = null) {
+        $rc = $this->container->restClient;
 
         if( $this->campaign_token ) {
             $rc->url = sprintf(
@@ -51,37 +51,37 @@ class Stats extends \MODL\GivingImpact\Model {
 
         }
 
-		$data = $rc->get($this->properties);
-		$out = array();
+        $data = $rc->get($this->properties);
+        $out = array();
 
-		foreach( $data->stats as $d ) {
-		    $out[] = new $this($this->container, $d);
-		}
+        foreach( $data->stats as $d ) {
+            $out[] = new $this($this->container, $d);
+        }
 
-		return $out;
-	}
+        return $out;
+    }
 
     /**
      * Set parent campaign
      * @param  String $token
      * @return Object
      */
-	public function campaign($token) {
-	    $this->campaign_token = $token;
+    public function campaign($token) {
+        $this->campaign_token = $token;
 
-	    return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set parent opportunity
      * @param  String $token
      * @return Object
      */
-	public function opportunity($token) {
-	    $this->opportunity_token = $token;
+    public function opportunity($token) {
+        $this->opportunity_token = $token;
 
-	    return $this;
-	}
+        return $this;
+    }
 
     public function __get($k) {
         $f = sprintf('__%s', $k);
