@@ -197,7 +197,7 @@ class Plugin_givingimpact extends Plugin {
     }
 
     public function donate_js() {
-        $apiUrl = $this->gi()->endpoint();
+        $apiUrl = $this->gi()->endpoint;
         $publicKey =  $this->fetchConfig('_public_key');
 
         $formId = $this->fetchParam('id') ? $this->fetchParam('id') : 'donate-form';
