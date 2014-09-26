@@ -349,6 +349,10 @@ On successful submission and processing of form data, the API and module will re
 
 #### Campaign Example Donation Checkout Form
 
+Using the built-in `{{givingimpact:donate_form}}` tag pair, you can easily create a new form with all the necessary information.
+
+Additionally, the `{{givingimpact:donate_js}}` tag includes the Giving Impact javascript wrapper that makes Stripe integration that much easier by including the standard Stripe javascript, adding error handling and validation.
+
 The following is an example of a **Campaign** checkout Form. Please note that all Campaign data as detailed above is available within the form opening and closing tags. You can see examples of this in both the donation levels and custom donation fields areas.
 
     {{givingimpact:donate_form campaign="{{campaign_token}}" return="/path/to/return"}}
@@ -394,3 +398,6 @@ The following is an example of a **Campaign** checkout Form. Please note that al
 
     <input type="submit" value="Donate" id="process-donation" class="button radius" />
     {{/givingimpact:donate_form}}
+
+    <!-- donate_js provides automatic Stripe integration and formatting, along with Stripe error handling -->
+    {{givingimpact:donate_js}}
