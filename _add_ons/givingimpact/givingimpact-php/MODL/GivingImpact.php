@@ -58,7 +58,7 @@ class GivingImpact {
      * @var array
      */
     protected $components = array(
-        'end_point'     => 'https://app.givingimpact.com/api',
+        'endpoint'      => 'https://app.givingimpact.com/api',
         'user_agent'    => 'Test UA',
         'api_key'       => false,
     );
