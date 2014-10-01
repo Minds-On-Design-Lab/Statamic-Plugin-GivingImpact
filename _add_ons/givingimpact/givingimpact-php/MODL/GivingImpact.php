@@ -102,7 +102,7 @@ class GivingImpact {
                 'Content-Type: application/json'
             );
 
-            $rc->url = $_->end_point;
+            $rc->url = $_->endpoint;
             $rc->user_agent = $_->user_agent;
 
             return $rc;
