@@ -47,6 +47,10 @@ class Hooks_givingimpact extends Hooks {
         $next = Request::post('NXT');
         $notify = Request::post('NTF');
 
+        if( strpos($next, '/') !== 0 && strpos($next, 'http') !== 0 ) {
+            $next = Path::clean(Path::resolve($next));
+        }
+
         $toCheck = array(
             'first_name',
             'last_name',
