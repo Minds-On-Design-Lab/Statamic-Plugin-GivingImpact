@@ -236,7 +236,7 @@ You need to provide a campaign token, opportunity token **or** dondation token.
 | Variable        | Description|
 | ------------- |:-------------|
 | {{donation_id_token}} | Unique API token and id for the donation. |
-| {{donation_created_at}} | Timestamp of donation date and time. |
+| {{donation_donation_date}} | Timestamp of donation date and time. |
 | {{donation_campaign}} OR {{donation_opportunity}} | Unique API token for campaign OR opportunity that the donation is most directly associated with.|
 | {{donation_first_name}} | Donor first name |
 | {{donation_last_name}} | Donor last name |
