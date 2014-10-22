@@ -70,7 +70,17 @@ class Opportunity extends \MODL\GivingImpact\Model {
      * @param  Array $data
      * @return Object
      */
-    public function create($data) {
+    public function create($data = false) {
+
+        if( !$data ) {
+            $data = array();
+            foreach( $this->publicProperties() as $prop ) {
+                if( $prop == 'opporunity_token' ) {
+                    continue;
+                }
+                $data[$prop] = $this->$prop;
+            }
+        }
 
         if( !is_array($data) ) {
             throw new GIException('Expected array');

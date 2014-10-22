@@ -51,6 +51,7 @@ class Donation extends \MODL\GivingImpact\Model {
 
     private $campaign_token;
     private $opportunity_token;
+    private $supporter_token;
 
 	public function __construct($c, $data = false) {
 		$this->container = $c;
@@ -76,7 +77,7 @@ class Donation extends \MODL\GivingImpact\Model {
 
 		$rc = $this->container->restClient;
 
-        if( !$this->campaign_token && !$this->opportunity_token ) {
+        if( !$this->campaign_token && !$this->opportunity_token && !$this->supporter_token ) {
             $rc->url = sprintf(
                 '%s/v2/donations',
                 $rc->url
@@ -86,6 +87,12 @@ class Donation extends \MODL\GivingImpact\Model {
                 '%s/v2/campaigns/%s/donations',
                 $rc->url,
                 $this->campaign_token
+            );
+        } elseif( $this->supporter_token ) {
+            $rc->url = sprintf(
+                '%s/v2/supporters/%s/donations',
+                $rc->url,
+                $this->supporter_token
             );
         } else {
             $rc->url = sprintf(
@@ -204,6 +211,17 @@ class Donation extends \MODL\GivingImpact\Model {
 
 	    return $this;
 	}
+
+    /**
+     * Set parent supporter
+     * @param  String $token
+     * @return Object        this
+     */
+    public function supporter($token) {
+        $this->supporter_token = $token;
+
+        return $this;
+    }
 
     public function __get($k) {
         $f = sprintf('__%s', $k);

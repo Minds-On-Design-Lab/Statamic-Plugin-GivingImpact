@@ -18,7 +18,135 @@ class Hooks_givingimpact extends Hooks {
     private $public_key     = false;
 
     public function givingimpact__post_opportunity() {
-        echo 'hi';
+        $token          = Request::post('c');
+        $title          = Request::post('title');
+        $description    = Request::post('description');
+        $youtube        = Request::post('youtube');
+        $target         = Request::post('target');
+        $captcha        = Request::post('captcha');
+
+        $return_path    = base64_decode(Request::post('rtp'));
+
+        // $related = $this->EE->input->post('related', false);
+        $related = true;
+
+        $next   = Request::post('NXT');
+        $notify = Request::post('NTF');
+
+        if( strpos($next, '/') !== 0 && strpos($next, 'http') !== 0 ) {
+            $next = Path::clean(Path::resolve($next));
+        }
+
+        // if( $notify && !valid_email($notify) ) {
+        //     $notify = false;
+        // }
+
+        if( !$token || !$title || !$description ) {
+            $errors = array();
+            if( !$token ) {
+                $errors[] = 'Campaign token is required';
+            }
+            if( !$title ) {
+                $errors[] = 'Title is required';
+            }
+            if( !$description ) {
+                $errors[] = 'Description is required';
+            }
+
+            if( !$target ) {
+                $errors[] = 'Target is a required field';
+            }
+
+            Session::setFlash('formvals', serialize(array(
+                'title'             => $title,
+                'description'       => $description,
+                'youtube'           => $youtube,
+                'target'            => $target,
+                'errors'            => $this->prep_errors($errors)
+            )));
+
+            return URL::redirect($return_path, 301);
+        }
+
+
+        $obj = $this->gi()->campaign
+            ->fetch($token);
+
+        $campaign_responses = array();
+        if( array_key_exists('campaign_fields', $obj) && is_array(Request::post('fields')) ) {
+
+            $responses = $this->EE->input->post('fields');
+
+            $errors = array();
+
+            foreach( $obj['campaign_fields'] as $f ) {
+                if( $f['required'] && $f['status'] && !$responses[$f['field_id']] ) {
+                    $errors[] = $f['field_label'].' is required';
+                    break;
+                }
+
+                if( !array_key_exists($f['field_id'], $responses) ) {
+                    continue;
+                }
+                $item = new stdClass;
+                $item->response             = $responses[$f['field_id']];
+                $item->campaign_field_id    = $f['field_id'];
+
+                $campaign_responses[] = $item;
+            }
+
+            if( count($errors) ) {
+                Session::setFlash('formvals', serialize(array(
+                    'title'             => $title,
+                    'description'       => $description,
+                    'status'            => $status,
+                    'youtube'           => $youtube,
+                    'target'            => $target,
+                    'captcha'           => $captcha,
+                    'errors'            => $this->prep_errors($errors)
+                )));
+
+                return URL::redirect($return_path, 301);
+            }
+        }
+
+        // pack it
+
+        $opp = $this->gi()->opportunity;
+
+        $opp->campaign_token    = $token;
+        $opp->title             = $title;
+        $opp->description       = $description;
+        $opp->status            = 1;
+        $opp->campaign_responses= $campaign_responses;
+
+        if( $youtube ) {
+            $opp->youtube_url = $youtube;
+        }
+
+        if( $target ) {
+            $opp->target = $target;
+        }
+
+        if( $_FILES && array_key_exists('image', $_FILES) ) {
+            $image = $_FILES['image'];
+
+            if( !$image['error'] ) {
+                $raw = base64_encode(file_get_contents($image['tmp_name']));
+                $type = $image['type'];
+
+                $opp->image_file = $raw;
+                $opp->image_type = $type;
+            }
+        }
+
+        $result = $opp->create();
+
+        $new_token = $result->id_token;
+
+        Session::setFlash('opportunity_token', $new_token);
+
+        return URL::redirect($next.'?opportunity='.$new_token);
     }
 
     public function givingimpact__post_donation() {
@@ -194,8 +322,9 @@ class Hooks_givingimpact extends Hooks {
 
         $this->private_key =  $this->fetchConfig('_private_key');
         $this->public_key = $this->fetchConfig('_public_key');
+        $this->end_point = $this->fetchConfig('_end_point', false);
 
-        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key);
+        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key, $this->end_point);
 
         return $this->api_handle;
     }
