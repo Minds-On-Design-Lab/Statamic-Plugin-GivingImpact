@@ -401,3 +401,129 @@ The following is an example of a **Campaign** checkout Form. Please note that al
 
     <!-- donate_js provides automatic Stripe integration and formatting, along with Stripe error handling -->
     {{givingimpact:donate_js}}
+
+#### Opportunity Form
+
+    {{givingimpact:opportunity_form
+      campaign="######"
+    }}
+
+    ... form content
+
+    {{/givingimpact:opportunity_form}}
+
+###### Required Parameters
+
+| Parameter | Data Type | Description |
+| ------------ |:-------------|:-------------|
+| campaign | STRING | id_token for the Campaign the Giving Opportunity is towards. |
+
+###### Optional Parameters
+
+| Parameter | Data Type | Description | Default |
+| ------------ |:-------------|:-------------|:-------------|
+| return | STRING | a return URL that supports `{{path=foo/bar}}` | returns to template of form |
+
+#### Validation and Required Fields
+
+##### Form Fields
+
+* title (REQUIRED)
+* description (REQUIRED)
+* target
+* youtube
+* hash_tag
+* analytics_id
+* image (a "file" form element for Opportunity logo)
+* fields (see Campaign Fields below)
+
+##### Validation and Error Handling
+
+In the event of a data entry or API error, the user will be returned to your form and the `{{form_error}}{{/form_error}}` tag pair will be available. By looping through the tag pair, you'll be able to display the validation errors:
+
+    {{givingimpact:opportunity}}
+
+        {{ if form_errors }}
+            Aww nuts!
+            {{form_errors}}
+                {{error}}
+            {{/form_errors}}
+        {{endif}}
+
+        ...
+
+    {{/givingimpact:opportunity}}
+
+You may use the following variables to repopulate the form upon return from validation error.
+
+* `{{value_title}}`
+* `{{value_description}}`
+* `{{value_target}}`
+* `{{value_youtube}}`
+* `{{value_hash_tag}}`
+* `{{value_analytics_id}}`
+
+#### Returned Data
+
+On successful submission and processing of form data, the API and module will return the new opportunity's unique token. This value are returned in two ways.
+
+1. The `opportunity_token` will be dynamically added as a GET parameter **return** parameter detailed above.
+2. If you return to the same template that contains the form tag, you may use the `{{opportunity}}{{/opportunity}}` tag pair to get donation information.
+
+#### Campaign Example Giving Opportunity Form
+
+Using the built-in `{{givingimpact:opportunity_form}}` tag pair, you can easily create a new form with all the necessary information.
+
+    {{givingimpact:opportunity_form campaign="fa0d0220e0"}}
+
+        {{ if form_errors }}
+            Aww nuts!
+            {{form_errors}}
+                {{error}}
+            {{/form_errors}}
+        {{endif}}
+
+        {{opportunity}}
+            Awesome! Your Giving Opportunity, {{opportunity_title}} has been created!
+        {{/opportunity}}
+
+        <label>Title</label>
+        <input type="text" name="title" value="{{value_title}}" />
+
+        <label>Description</label>
+        <textarea name="description" rows="5" cols="50">{{value_description}}</textarea>
+
+        <label>YouTube Video ID</label>
+        <input type="text" name="youtube" value="{{value_youtube}}" />
+
+        <label>Hash Tag</label>
+        <input type="text" name="hash_tag" value="{{value_hash_tag}}" />
+
+        <label>Google Analytics Tracking ID</label>
+        <input type="text" name="analytics_id" value="{{value_analytics_id}}" />
+
+        <label>Donation Target</label>
+        <input type="text" name="target" value="{{value_target}}" />
+
+        <label>Campaign Logo</label>
+        <input type="file" name="image" />
+
+        {{campaign_campaign_fields}}
+            {{if campaign_fields_status}}
+                <label>{{campaign_fields_field_label}}</label>
+                {{if campaign_fields_field_type == "dropdown"}}
+                    <select name="fields[{{campaign_fields_field_id}}]">
+                        {{campaign_fields_options}}
+                            <option value="{{value}}">{{value}}</option>
+                        {{/campaign_fields_options}}
+                    </select>
+                {{else}}
+                    <input type="text" name="fields[{{campaign_fields_field_id}}]" />
+                {{endif}}
+                <br />
+            {{endif}}
+        {{/campaign_campaign_fields}}
+
+        <input type="submit" value="Create Opportunity" />
+
+    {{/givingimpact:opportunity_form}}
