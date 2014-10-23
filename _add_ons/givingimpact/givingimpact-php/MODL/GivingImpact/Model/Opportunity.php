@@ -51,17 +51,17 @@ class Opportunity extends \MODL\GivingImpact\Model {
     public $image_type = false;
     public $image_file = false;
 
-	protected $path = 'v2/opportunities';
+    protected $path = 'v2/opportunities';
 
     private $stack = array();
 
-	public function __construct($c, $data = false) {
-		$this->container = $c;
+    public function __construct($c, $data = false) {
+        $this->container = $c;
 
-		if( $data ) {
-		    $this->assign($data);
-		}
-	}
+        if( $data ) {
+            $this->assign($data);
+        }
+    }
 
     /**
      * Create new opportunity
@@ -75,7 +75,7 @@ class Opportunity extends \MODL\GivingImpact\Model {
         if( !$data ) {
             $data = array();
             foreach( $this->publicProperties() as $prop ) {
-                if( $prop == 'opporunity_token' ) {
+                if( $prop == 'opportunity_token' ) {
                     continue;
                 }
                 $data[$prop] = $this->$prop;
@@ -136,44 +136,44 @@ class Opportunity extends \MODL\GivingImpact\Model {
      * @param  boolean $token
      * @return Array
      */
-	public function fetch($token = false) {
-		if( $token ) {
-			$data = parent::fetch($token);
+    public function fetch($token = false) {
+        if( $token ) {
+            $data = parent::fetch($token);
             return new $this($this->container, $data->opportunity);
-		}
+        }
 
         if( !$this->campaign_token ) {
             throw new GIException('Parent campaign token required');
             return;
         }
 
-		$rc = $this->container->restClient;
-		$rc->url = sprintf(
-		    '%s/v2/campaigns/%s/opportunities',
-		    $rc->url,
-		    $this->campaign_token
-		);
+        $rc = $this->container->restClient;
+        $rc->url = sprintf(
+            '%s/v2/campaigns/%s/opportunities',
+            $rc->url,
+            $this->campaign_token
+        );
 
-		$data = $rc->get($this->properties);
-		$out = array();
+        $data = $rc->get($this->properties);
+        $out = array();
 
-		foreach( $data->opportunities as $o ) {
-		    $out[] = new $this($this->container, $o);
-		}
+        foreach( $data->opportunities as $o ) {
+            $out[] = new $this($this->container, $o);
+        }
 
-		return $out;
-	}
+        return $out;
+    }
 
     /**
      * Set parent campaign
      * @param  String $token
      * @return Object        this
      */
-	public function campaign($token) {
-	    $this->campaign_token = $token;
+    public function campaign($token) {
+        $this->campaign_token = $token;
 
-	    return $this;
-	}
+        return $this;
+    }
 
     /**
      * Donations computed property
