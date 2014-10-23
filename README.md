@@ -30,7 +30,6 @@ For more about Giving Impact and to view our full documentation and learning rea
 * [Opportunities](#opportunities)
 * [Donations](#donations)
 * [Donation Checkout](#donation-checkoupt)
-* [Opportunity Form](#opportunity-form)
 * [Hooks](#hooks)
 
 ### Install
@@ -41,6 +40,8 @@ For more about Giving Impact and to view our full documentation and learning rea
 4. Add your [GivingImpact](http://givingimpact.com) public and private API keys to `givingimpact.yaml`
 
 ### Campaigns
+
+Get a list of campaigns or a single campaing if token is provided.
 
     {{givingimpact:campaigns}} Content {{/givingimpact:campaigns}}
 
@@ -125,6 +126,10 @@ The following are available in this tag pair:
 
 ### Opportunities
 
+Giving Opportunities are used for advocate, peer-to-peer, or simple teams allowing fundraising to be tracked for the opportunity but have donation data connected to the parent campaign as a whole as well.
+
+Get a list of opportunities within a campaign or a single opportunity.
+
     {{givingimpact:opportunities opportunity="{{id_token}}"}} Content {{/givingimpact:opportunities}}
 
 #### Required Parameters
@@ -203,6 +208,8 @@ The following is available in this tag pair:
 | {{campaign_responses_required}} | Returns `true` or `false` depending on whether the field is currently required |
 
 ### Donations
+
+Get a list of donations related to a Campaign or Giving Opportunity or retrieve a single donation record.
 
     {{givingimpact:donations campaign="{id_token}"}} Content {{/givingimpact:donations}}
 
