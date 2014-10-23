@@ -22,6 +22,8 @@ class Hooks_givingimpact extends Hooks {
         $title          = Request::post('title');
         $description    = Request::post('description');
         $youtube        = Request::post('youtube');
+        $hash_tag       = Request::post('hash_tag');
+        $analytics_id   = Request::post('analytics_id');
         $target         = Request::post('target');
         $captcha        = Request::post('captcha');
 
@@ -53,14 +55,12 @@ class Hooks_givingimpact extends Hooks {
                 $errors[] = 'Description is required';
             }
 
-            if( !$target ) {
-                $errors[] = 'Target is a required field';
-            }
-
             Session::setFlash('formvals', serialize(array(
                 'title'             => $title,
                 'description'       => $description,
                 'youtube'           => $youtube,
+                'hash_tag'          => $hash_tag,
+                'analytics_id'      => $analytics_id,
                 'target'            => $target,
                 'errors'            => $this->prep_errors($errors)
             )));
@@ -73,24 +73,25 @@ class Hooks_givingimpact extends Hooks {
             ->fetch($token);
 
         $campaign_responses = array();
+
         if( array_key_exists('campaign_fields', $obj) && is_array(Request::post('fields')) ) {
 
-            $responses = $this->EE->input->post('fields');
+            $responses = Request::post('fields');
 
             $errors = array();
 
-            foreach( $obj['campaign_fields'] as $f ) {
-                if( $f['required'] && $f['status'] && !$responses[$f['field_id']] ) {
-                    $errors[] = $f['field_label'].' is required';
+            foreach( $obj->campaign_fields as $f ) {
+                if( $f->required && $f->status && !$responses[$f->field_id] ) {
+                    $errors[] = $f->field_label.' is required';
                     break;
                 }
 
-                if( !array_key_exists($f['field_id'], $responses) ) {
+                if( !array_key_exists($f->field_id, $responses) ) {
                     continue;
                 }
                 $item = new stdClass;
-                $item->response             = $responses[$f['field_id']];
-                $item->campaign_field_id    = $f['field_id'];
+                $item->response             = $responses[$f->field_id];
+                $item->campaign_field_id    = $f->field_id;
 
                 $campaign_responses[] = $item;
             }
@@ -101,6 +102,8 @@ class Hooks_givingimpact extends Hooks {
                     'description'       => $description,
                     'status'            => $status,
                     'youtube'           => $youtube,
+                    'hash_tag'          => $hash_tag,
+                    'analytics_id'      => $analytics_id,
                     'target'            => $target,
                     'captcha'           => $captcha,
                     'errors'            => $this->prep_errors($errors)
@@ -119,13 +122,16 @@ class Hooks_givingimpact extends Hooks {
         $opp->description       = $description;
         $opp->status            = 1;
         $opp->campaign_responses= $campaign_responses;
+        $opp->donation_target   = $target ? $target : 0;
 
         if( $youtube ) {
-            $opp->youtube_url = $youtube;
+            $opp->youtube_id = $youtube;
         }
-
-        if( $target ) {
-            $opp->target = $target;
+        if( $hash_tag ) {
+            $opp->hash_tag = $hash_tag;
+        }
+        if( $analytics_id ) {
+            $opp->analytics_id = $analytics_id;
         }
 
         if( $_FILES && array_key_exists('image', $_FILES) ) {

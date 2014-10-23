@@ -360,6 +360,8 @@ END;
             'value_title'       => false,
             'value_description' => false,
             'value_youtube'     => false,
+            'value_hash_tag'    => false,
+            'value_analytics_id'=> false,
             'value_target'      => false,
             'value_status'      => false
         );
@@ -388,7 +390,7 @@ END;
         $tagdata = Parse::template($tagdata, $vars);
 
         $tag_start = sprintf(
-            '<form method="POST" action="%s" id="%s" class="%s" enctype="multi">',
+            '<form method="POST" action="%s" id="%s" class="%s" enctype="multipart/form-data">',
             URL::format(Config::getSiteRoot().'TRIGGER/givingimpact/post_opportunity'),
             'opportunity-form',
             $this->fetchParam('class')
