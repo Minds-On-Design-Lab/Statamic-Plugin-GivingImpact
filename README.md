@@ -527,3 +527,56 @@ Using the built-in `{{givingimpact:opportunity_form}}` tag pair, you can easily 
         <input type="submit" value="Create Opportunity" />
 
     {{/givingimpact:opportunity_form}}
+
+### Hooks
+
+##### givingimpact__before_opportunity
+
+The `before_opportunity` hook is fired _before_ a new opportunity is created via the opportunity form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|
+| title | string | Opportunity title |
+| description | string | User description |
+| youtube | string | YouTube video id |
+| hash_tag | string | Campaign hashtag |
+| target | int | Campaign donation target |
+
+
+##### givingimpact__after_opportunity
+
+The `after_opportunity` hook is fired _after_ a new opportunity is created via the opportunity form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|
+| opportunity_token | string | The id token of the new opportunity |
+| opportunity | object | The new opportunity object |
+
+##### givingimpact__before_donation
+
+The `before_donation` hook is fired _before_ a new donation is created via the donate form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|
+| first_name | string | Donor first name |
+| last_name | string | Donor last name |
+| email | string | Donor email |
+| street | string | Donor street address |
+| city | string | Donor city |
+| state | string | Donor state/province |
+| zip | string | Donor zip |
+| donation_level | string | Donation level, if applicable |
+| donation_level_id | int | Donation level unique ID, if applicable |
+| donation_amount | int | Donation amount |
+| contact | boolean | Whether the donor wants to be contacted |
+
+
+##### givingimpact__after_donation
+
+The `after_donation` hook is fired _after_ a new donation is created via the donate form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|
+| donation_token | string | The id token of the new donation |
+| donation | object | The new donation object |
+

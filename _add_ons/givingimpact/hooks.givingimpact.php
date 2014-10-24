@@ -23,7 +23,6 @@ class Hooks_givingimpact extends Hooks {
         $description    = Request::post('description');
         $youtube        = Request::post('youtube');
         $hash_tag       = Request::post('hash_tag');
-        $analytics_id   = Request::post('analytics_id');
         $target         = Request::post('target');
         $captcha        = Request::post('captcha');
 
@@ -42,6 +41,15 @@ class Hooks_givingimpact extends Hooks {
         // if( $notify && !valid_email($notify) ) {
         //     $notify = false;
         // }
+        //
+
+        $this->runHook('before_opportunity', 'call', null, array(
+            'title'             => $title,
+            'description'       => $description,
+            'youtube'           => $youtube,
+            'hash_tag'          => $hash_tag,
+            'target'            => $target
+        ));
 
         if( !$token || !$title || !$description ) {
             $errors = array();
@@ -60,7 +68,6 @@ class Hooks_givingimpact extends Hooks {
                 'description'       => $description,
                 'youtube'           => $youtube,
                 'hash_tag'          => $hash_tag,
-                'analytics_id'      => $analytics_id,
                 'target'            => $target,
                 'errors'            => $this->prep_errors($errors)
             )));
@@ -103,9 +110,7 @@ class Hooks_givingimpact extends Hooks {
                     'status'            => $status,
                     'youtube'           => $youtube,
                     'hash_tag'          => $hash_tag,
-                    'analytics_id'      => $analytics_id,
                     'target'            => $target,
-                    'captcha'           => $captcha,
                     'errors'            => $this->prep_errors($errors)
                 )));
 
@@ -130,9 +135,6 @@ class Hooks_givingimpact extends Hooks {
         if( $hash_tag ) {
             $opp->hash_tag = $hash_tag;
         }
-        if( $analytics_id ) {
-            $opp->analytics_id = $analytics_id;
-        }
 
         if( $_FILES && array_key_exists('image', $_FILES) ) {
             $image = $_FILES['image'];
@@ -149,6 +151,11 @@ class Hooks_givingimpact extends Hooks {
         $result = $opp->create();
 
         $new_token = $result->id_token;
+
+        $this->runHook('after_opportunity', 'call', null, array(
+            'opportunity_token' => $new_token,
+            'opportunity'       => $result
+        ));
 
         Session::setFlash('opportunity_token', $new_token);
 
@@ -194,6 +201,21 @@ class Hooks_givingimpact extends Hooks {
             'state',
             'zip'
         );
+
+        $this->runHook('before_donation', 'call', null, array(
+            'first_name'        => $first_name,
+            'last_name'         => $last_name,
+            'email'             => $email,
+            'street'            => $street,
+            'city'              => $city,
+            'state'             => $state,
+            'zip'               => $zip,
+            'donation_level'    => $donation_level,
+            'donation_level_id' => $donation_level_id,
+            'donation_amount'   => $donation_amount,
+            'contact'           => $contact
+        ));
+
 
         // if( $notify && !valid_email($notify) ) {
         //     $notify = false;
@@ -314,6 +336,11 @@ class Hooks_givingimpact extends Hooks {
         $result = $donation->create();
 
         $new_token = $result->id_token;
+
+        $this->runHook('after_donation', 'call', null, array(
+            'donation_token' => $new_token,
+            'donation'       => $result
+        ));
 
         Session::setFlash('donation_token', $new_token);
 
