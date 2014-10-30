@@ -366,6 +366,8 @@ END;
             'value_status'      => false
         );
 
+        $vars['campaign'] = $campaigns;
+
         if( Session::getFlash('formvals') ) {
             $vals = unserialize(Session::getFlash('formvals'));
             $errors = $vals['errors'];

@@ -463,6 +463,8 @@ You may use the following variables to repopulate the form upon return from vali
 * `{{value_hash_tag}}`
 * `{{value_analytics_id}}`
 
+Additionally, the form exposes the parent `{{campaign}}` object along with `{{campaign_campaign_fields}}` for custom field generation.
+
 #### Returned Data
 
 On successful submission and processing of form data, the API and module will return the new opportunity's unique token. This value are returned in two ways.
@@ -482,6 +484,10 @@ Using the built-in `{{givingimpact:opportunity_form}}` tag pair, you can easily 
                 {{error}}
             {{/form_errors}}
         {{endif}}
+
+        {{campaign}}
+            Create new Giving Opportunity for {{campaign_title}}
+        {{/campaign}}
 
         {{opportunity}}
             Awesome! Your Giving Opportunity, {{opportunity_title}} has been created!
