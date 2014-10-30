@@ -22,7 +22,6 @@ class Hooks_givingimpact extends Hooks {
         $title          = Request::post('title');
         $description    = Request::post('description');
         $youtube        = Request::post('youtube');
-        $hash_tag       = Request::post('hash_tag');
         $target         = Request::post('target');
         $captcha        = Request::post('captcha');
 
@@ -47,7 +46,6 @@ class Hooks_givingimpact extends Hooks {
             'title'             => $title,
             'description'       => $description,
             'youtube'           => $youtube,
-            'hash_tag'          => $hash_tag,
             'target'            => $target
         ));
 
@@ -67,7 +65,6 @@ class Hooks_givingimpact extends Hooks {
                 'title'             => $title,
                 'description'       => $description,
                 'youtube'           => $youtube,
-                'hash_tag'          => $hash_tag,
                 'target'            => $target,
                 'errors'            => $this->prep_errors($errors)
             )));
@@ -109,7 +106,6 @@ class Hooks_givingimpact extends Hooks {
                     'description'       => $description,
                     'status'            => $status,
                     'youtube'           => $youtube,
-                    'hash_tag'          => $hash_tag,
                     'target'            => $target,
                     'errors'            => $this->prep_errors($errors)
                 )));
@@ -131,9 +127,6 @@ class Hooks_givingimpact extends Hooks {
 
         if( $youtube ) {
             $opp->youtube_id = $youtube;
-        }
-        if( $hash_tag ) {
-            $opp->hash_tag = $hash_tag;
         }
 
         if( $_FILES && array_key_exists('image', $_FILES) ) {

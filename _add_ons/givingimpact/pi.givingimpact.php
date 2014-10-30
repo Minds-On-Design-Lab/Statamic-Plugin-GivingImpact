@@ -360,8 +360,6 @@ END;
             'value_title'       => false,
             'value_description' => false,
             'value_youtube'     => false,
-            'value_hash_tag'    => false,
-            'value_analytics_id'=> false,
             'value_target'      => false,
             'value_status'      => false
         );
