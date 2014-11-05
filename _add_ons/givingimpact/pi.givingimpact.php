@@ -197,7 +197,7 @@ class Plugin_givingimpact extends Plugin {
     }
 
     public function donate_js() {
-        $apiUrl = $this->gi()->endpoint;
+        $apiUrl = $this->gi()->end_point;
         $publicKey =  $this->fetchConfig('_public_key');
 
         $formId = $this->fetchParam('id') ? $this->fetchParam('id') : 'donate-form';
@@ -253,15 +253,18 @@ END;
     public function donate_form() {
         $tagdata = $this->content;
 
-        // if( $this->fetchParam('opportunity') ) {
-        //     $opportunities = $this->gi()->opportunity
-        //         ->related(1)
-        //         ->fetch($this->fetchParam('opportunity'));
-        // } else {
-        //     $campaigns = $this->gi()->campaign
-        //         ->related(1)
-        //         ->fetch($this->fetchParam('campaign'));
-        // }
+        $related = $this->related();
+
+        if( $this->fetchParam('opportunity', false) ) {
+            $opportunity = $this->gi()->opportunity
+                ->related($related)
+                ->fetch($this->fetchParam('opportunity', false));
+            $campaigns = $this->prefix_tags('opportunity', json_decode(json_encode(array($opportunity)), true));
+        } else {
+            $campaign = $this->gi()->campaign
+                ->fetch($this->fetchParam('campaign', false));
+            $campaigns = $this->prefix_tags('campaign', json_decode(json_encode(array($campaign)), true));
+        }
 
         $vars = array(
             'value_first_name'  => false,
@@ -275,6 +278,8 @@ END;
             'value_donation_level'      => false,
             'valud_donation_level_id'   => false
         );
+
+        $vars = array_merge($vars, array_shift($campaigns));
 
         if( Session::getFlash('formvals') ) {
             $vals = unserialize(Session::getFlash('formvals'));
@@ -364,7 +369,7 @@ END;
             'value_status'      => false
         );
 
-        $vars['campaign'] = $campaigns;
+        // $vars['campaign'] = $campaigns;
 
         if( Session::getFlash('formvals') ) {
             $vals = unserialize(Session::getFlash('formvals'));
