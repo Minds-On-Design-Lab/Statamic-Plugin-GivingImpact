@@ -275,17 +275,17 @@ class Hooks_givingimpact extends Hooks {
 
             $errors = array();
 
-            foreach( $obj['custom_fields'] as $f ) {
-                if( $f['required'] && $f['status'] && !$responses[$f['field_id']] ) {
-                    $errors['fields['.$f['field_id'].']'] = $f['field_label'].' is required';
+            foreach( $obj->custom_fields as $f ) {
+                if( $f->required && $f->status && !$responses[$f->field_id] ) {
+                    $errors['fields['.$f->field_id.']'] = $f->field_label.' is required';
                     break;
                 }
 
-                if( !array_key_exists($f['field_id'], $responses) ) {
+                if( !array_key_exists($f->field_id, $responses) ) {
                     continue;
                 }
 
-                $custom_responses[$f['field_id']] = $responses[$f['field_id']];
+                $custom_responses[$f->field_id] = $responses[$f->field_id];
             }
 
             if( count($errors) ) {
