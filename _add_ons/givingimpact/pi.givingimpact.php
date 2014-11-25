@@ -366,7 +366,14 @@ END;
             'value_description' => false,
             'value_youtube'     => false,
             'value_target'      => false,
-            'value_status'      => false
+            'value_status'      => false,
+            'value_supporter_first_name'  => false,
+            'value_supporter_last_name'   => false,
+            'value_supporter_email'       => false,
+            'value_supporter_street'      => false,
+            'value_supporter_city'        => false,
+            'value_supporter_state'       => false,
+            'value_supporter_zip'         => false,
         );
 
         // $vars['campaign'] = $campaigns;

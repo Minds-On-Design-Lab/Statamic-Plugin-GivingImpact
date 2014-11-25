@@ -25,6 +25,14 @@ class Hooks_givingimpact extends Hooks {
         $target         = Request::post('target');
         $captcha        = Request::post('captcha');
 
+        $supporter_first_name   = Request::post('supporter_first_name', false);
+        $supporter_last_name    = Request::post('supporter_last_name', false);
+        $supporter_email        = Request::post('supporter_email', false);
+        $supporter_street       = Request::post('supporter_street', false);
+        $supporter_city         = Request::post('supporter_city', false);
+        $supporter_state        = Request::post('supporter_state', false);
+        $supporter_zip          = Request::post('supporter_zip', false);
+
         $return_path    = base64_decode(Request::post('rtp'));
 
         // $related = $this->EE->input->post('related', false);
@@ -66,7 +74,14 @@ class Hooks_givingimpact extends Hooks {
                 'description'       => $description,
                 'youtube'           => $youtube,
                 'target'            => $target,
-                'errors'            => $this->prep_errors($errors)
+                'errors'            => $this->prep_errors($errors),
+                'supporter_first_name'  => $supporter_first_name,
+                'supporter_last_name'   => $supporter_last_name,
+                'supporter_email'       => $supporter_email,
+                'supporter_street'      => $supporter_street,
+                'supporter_city'        => $supporter_city,
+                'supporter_state'       => $supporter_state,
+                'supporter_zip'         => $supporter_zip
             )));
 
             return URL::redirect($return_path, 301);
@@ -107,7 +122,14 @@ class Hooks_givingimpact extends Hooks {
                     'status'            => $status,
                     'youtube'           => $youtube,
                     'target'            => $target,
-                    'errors'            => $this->prep_errors($errors)
+                    'errors'            => $this->prep_errors($errors),
+                    'supporter_first_name'  => $supporter_first_name,
+                    'supporter_last_name'   => $supporter_last_name,
+                    'supporter_email'       => $supporter_email,
+                    'supporter_street'      => $supporter_street,
+                    'supporter_city'        => $supporter_city,
+                    'supporter_state'       => $supporter_state,
+                    'supporter_zip'         => $supporter_zip
                 )));
 
                 return URL::redirect($return_path, 301);
@@ -124,6 +146,31 @@ class Hooks_givingimpact extends Hooks {
         $opp->status            = 1;
         $opp->campaign_responses= $campaign_responses;
         $opp->donation_target   = $target ? $target : 0;
+
+        $supporter = array();
+        if( $supporter_email ) {
+            $supporter = array(
+                'email_address'     => $supporter_email
+            );
+            $check = array(
+                'first_name',
+                'last_name',
+                'street',
+                'city',
+                'state',
+                'zip'
+            );
+            foreach( $check as $str ) {
+                $v = 'supporter_'.$str;
+                if( isset($v) && $$v !== false ) {
+                    $supporter[$str] = $$v;
+                }
+            }
+        }
+
+        if( count($supporter) ) {
+            $opp->supporters = array($supporter);
+        }
 
         if( $youtube ) {
             $opp->youtube_id = $youtube;

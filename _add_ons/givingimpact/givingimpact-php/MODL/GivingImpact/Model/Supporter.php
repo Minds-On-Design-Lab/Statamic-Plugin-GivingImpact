@@ -131,6 +131,23 @@ class Supporter extends \MODL\GivingImpact\Model {
         return $donations;
     }
 
+    public function __opportunities() {
+        if( !$this->id_token ) {
+            return false;
+        }
+
+        if( array_key_exists('opportunities', $this->stack) ) {
+            return $this->stack['opportunities'];
+        }
+
+        $opportunities = $this->container->opportunity
+            ->supporter($this->id_token);
+
+        $this->stack['opportunities'] = $opportunities;
+
+        return $opportunities;
+    }
+
     public function __get($k) {
         $f = sprintf('__%s', $k);
         if( is_callable(array($this, $f)) ) {
