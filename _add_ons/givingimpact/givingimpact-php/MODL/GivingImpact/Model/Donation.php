@@ -44,6 +44,7 @@ class Donation extends \MODL\GivingImpact\Model {
     public $custom_responses = false;
     public $donation_date = false;
     public $card = false;
+    public $refunded = false;
 
 	protected $path = false;
 
@@ -125,7 +126,7 @@ class Donation extends \MODL\GivingImpact\Model {
         if( !$data ) {
             $data = array();
             foreach( $this->publicProperties() as $prop ) {
-                if( $prop == 'campaign_token' || $prop == 'opporunity_token' ) {
+                if( $prop == 'campaign_token' || $prop == 'opportunity_token' ) {
                     continue;
                 }
                 $data[$prop] = $this->$prop;
@@ -136,8 +137,8 @@ class Donation extends \MODL\GivingImpact\Model {
 
         if( $this->campaign_token ) {
             $data['campaign'] = $this->campaign_token;
-        } elseif( $this->opporunity_token ) {
-            $data['opporunity'] = $this->opporunity_token;
+        } elseif( $this->opportunity_token ) {
+            $data['opportunity'] = $this->opportunity_token;
         }
 
         $data['contact'] = $data['contact'] ? '1' : '0';

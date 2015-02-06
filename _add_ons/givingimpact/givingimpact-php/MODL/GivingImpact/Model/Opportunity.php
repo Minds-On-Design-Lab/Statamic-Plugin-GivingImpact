@@ -186,6 +186,11 @@ class Opportunity extends \MODL\GivingImpact\Model {
 	    return $this;
 	}
 
+    public function __donation() {
+        return $this->container->donation
+            ->opportunity($this->id_token);
+    }
+
     /**
      * Donations computed property
      * @return Array of donations

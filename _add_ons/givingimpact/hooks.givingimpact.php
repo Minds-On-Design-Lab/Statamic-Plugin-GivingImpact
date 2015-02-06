@@ -307,22 +307,24 @@ class Hooks_givingimpact extends Hooks {
         if( $token && strlen($token) ) {
             $obj = $this->gi()->campaign
                 ->fetch($token);
+
+            $camp = $obj;
         } else {
             $obj = $this->gi()->opportunity
                 ->related(1)
                 ->fetch($opportunity_token);
 
-            $obj = $obj->campaign;
+            $camp = $obj->campaign;
         }
 
         $custom_responses = array();
-        if( array_key_exists('custom_fields', $obj) && is_array(Request::post('fields')) ) {
+        if( array_key_exists('custom_fields', $camp) && is_array(Request::post('fields')) ) {
 
             $responses = Request::post('fields');
 
             $errors = array();
 
-            foreach( $obj->custom_fields as $f ) {
+            foreach( $camp->custom_fields as $f ) {
                 if( $f->required && $f->status && !$responses[$f->field_id] ) {
                     $errors['fields['.$f->field_id.']'] = $f->field_label.' is required';
                     break;
