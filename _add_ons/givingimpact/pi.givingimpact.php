@@ -82,6 +82,14 @@ class Plugin_givingimpact extends Plugin {
                 ->related($related)
                 ->fetch($token);
             $opportunities = array($opportunities);
+        } elseif( $this->fetchParam('supporter', false) ) {
+            $opportunities = $this->gi()->opportunity
+                ->supporter($this->fetchParam('supporter', false))
+                ->limit($limit)
+                ->offset($offset)
+                ->sort($sort)
+                ->related($related)
+                ->fetch();
         } else {
             $opportunities = $this->gi()->campaign
                 ->fetch($campaign_token)
@@ -133,6 +141,9 @@ class Plugin_givingimpact extends Plugin {
                     ->related($related)
                     ->fetch($campaign_token)
                     ->donations;
+            } elseif( $this->fetchParam('supporter', false) ) {
+                $donations = $this->gi()->donation
+                    ->supporter($this->fetchParam('supporter', false));
             } else {
                 $donations = $this->gi()
                     ->opportunity

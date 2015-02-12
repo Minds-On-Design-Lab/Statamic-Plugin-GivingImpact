@@ -95,6 +95,11 @@ class Donation extends \MODL\GivingImpact\Model {
                 $rc->url,
                 $this->supporter_token
             );
+        } elseif( array_key_exists('email', $this->properties) ) {
+            $rc->url = sprintf(
+                '%s/v2/donations',
+                $rc->url
+            );
         } else {
             $rc->url = sprintf(
                 '%s/v2/opportunities/%s/donations',
@@ -219,7 +224,11 @@ class Donation extends \MODL\GivingImpact\Model {
      * @return Object        this
      */
     public function supporter($token) {
-        $this->supporter_token = $token;
+        if( strpos($token, '@') !== false ) {
+            $this->properties['email'] = $token;
+        } else {
+            $this->supporter_token = $token;
+        }
 
         return $this;
     }

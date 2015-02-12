@@ -152,16 +152,18 @@ class Opportunity extends \MODL\GivingImpact\Model {
                 $rc->url,
                 $this->supporter_token
             );
-        } else {
-            if( !$this->campaign_token ) {
-                throw new GIException('Parent campaign token required');
-                return;
-            }
+        } elseif( $this->campaign_token ) {
             $rc = $this->container->restClient;
             $rc->url = sprintf(
                 '%s/v2/campaigns/%s/opportunities',
                 $rc->url,
                 $this->campaign_token
+            );
+        } else {
+            $rc = $this->container->restClient;
+            $rc->url = sprintf(
+                '%s/v2/opportunities',
+                $rc->url
             );
         }
 
@@ -239,7 +241,11 @@ class Opportunity extends \MODL\GivingImpact\Model {
      * @return Object        this
      */
     public function supporter($token) {
-        $this->supporter_token = $token;
+        if( strpos($token, '@') !== false ) {
+            $this->properties['email'] = $token;
+        } else {
+            $this->supporter_token = $token;
+        }
 
         return $this;
     }
