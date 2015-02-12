@@ -129,7 +129,7 @@ The following are available in this tag pair:
 
 #### Required Parameters
 
-You need to provide a campaign id_token **or** opportunity id_token.
+You need to provide a campaign id_token **or** opportunity id_token **or** a supporter.
 
 * A campaign token will generate a list of children opportunities.
 * An opportunity token will return the single opportunity.
@@ -138,6 +138,7 @@ You need to provide a campaign id_token **or** opportunity id_token.
 | ------------ |:-------------|:-------------|
 | campaign | STRING | Parent campaign token. This is used to display the list of Giving Opportunities associated with a specific campaign. |
 | opportunity | STRING | Unique giving opportunity token. This is used to display a single specific Giving Opportunity. |
+| supporter | STRING | Can be unique supporter token OR supporter email address. This is used to display a list of Giving Opportunities for a supporter. |
 
 ##### Optional Parameters
 
@@ -210,7 +211,7 @@ The following is available in this tag pair:
 
 ##### Required Parameters
 
-You need to provide a campaign token, opportunity token **or** dondation token.
+You need to provide a campaign token, opportunity token **or** dondation token **or** a supporter.
 
 - A campaign token will generate a list of donations within the campaign, including those made through any children opportunities.
 - An opportunity token will return a list of donations for the specified opportunity only.
@@ -222,6 +223,7 @@ You need to provide a campaign token, opportunity token **or** dondation token.
 | campaign  | STRING | Parent campaign id_token |
 | opportunity | STRING | Specfic opportunity id_token |
 | donation | STRING | Specfic donation id_token |
+| supporter | STRING | Can be unique supporter token OR supporter email address. This is used to display a list of donations for a supporter. |
 
 ##### Optional Parameters
 
