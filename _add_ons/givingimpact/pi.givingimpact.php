@@ -56,7 +56,7 @@ class Plugin_givingimpact extends Plugin {
         $campaigns = $this->prefix_tags('campaign', json_decode(json_encode($campaigns), true));
 
         foreach( $campaigns as $campaign ) {
-            $out[] = Parse::template($content, $campaign);
+            $out[] = Parse::contextualTemplate($content, $campaign, $this->context);
         }
 
         return implode('', $out);
@@ -107,7 +107,7 @@ class Plugin_givingimpact extends Plugin {
         $opportunities = $this->prefix_tags('opportunity', json_decode(json_encode($opportunities), true));
 
         foreach( $opportunities as $opportunity ) {
-            $out[] = Parse::template($content, $opportunity);
+            $out[] = Parse::contextualTemplate($content, $opportunity, $this->context);
         }
 
         return implode('', $out);
@@ -157,15 +157,16 @@ class Plugin_givingimpact extends Plugin {
                 ->sort($sort)
                 ->related($related)
                 ->fetch();
+
         }
 
         $content = $this->content;
         $out = array();
-
+        
         $donations = $this->prefix_tags('donation', json_decode(json_encode($donations), true));
 
         foreach( $donations as $donation ) {
-            $out[] = Parse::template($content, $donation);
+            $out[] = Parse::contextualTemplate($content, $donation, $this->context);
         }
 
         return implode('', $out);
@@ -201,7 +202,7 @@ class Plugin_givingimpact extends Plugin {
         $supporters = $this->prefix_tags('supporter', json_decode(json_encode($supporters), true));
 
         foreach( $supporters as $supporter ) {
-            $out[] = Parse::template($content, $supporter);
+            $out[] = Parse::contextualTemplate($content, $supporter, $this->context);
         }
 
         return implode('', $out);
