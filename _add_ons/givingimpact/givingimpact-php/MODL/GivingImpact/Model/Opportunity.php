@@ -242,7 +242,7 @@ class Opportunity extends \MODL\GivingImpact\Model {
      */
     public function supporter($token) {
         if( strpos($token, '@') !== false ) {
-            $this->properties['email'] = $token;
+            $this->properties['supporter'] = $token;
         } else {
             $this->supporter_token = $token;
         }
