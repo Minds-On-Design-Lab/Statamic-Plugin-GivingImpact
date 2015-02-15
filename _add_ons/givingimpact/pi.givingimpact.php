@@ -131,6 +131,7 @@ class Plugin_givingimpact extends Plugin {
 
         if( $token ) {
             $donations = $this->gi()->donation
+                ->related($related)
                 ->fetch($token);
             $donations = array($donations);
         } else {
@@ -162,7 +163,7 @@ class Plugin_givingimpact extends Plugin {
 
         $content = $this->content;
         $out = array();
-        
+
         $donations = $this->prefix_tags('donation', json_decode(json_encode($donations), true));
 
         foreach( $donations as $donation ) {
