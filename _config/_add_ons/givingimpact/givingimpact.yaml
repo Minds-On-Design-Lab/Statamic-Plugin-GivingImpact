@@ -6,3 +6,9 @@
 
 _private_key: "YOUR PRIVATE KEY"
 _public_key: "YOUR PUBLIC KEY"
+
+
+# If using Giving Impact with a single campaign you can use
+# the following variable to set the campaign token
+
+_campaign: "YOUR SINGLE CAMPAIGN TOKEN"

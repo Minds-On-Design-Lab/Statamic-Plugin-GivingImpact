@@ -150,7 +150,7 @@ The following are used to modify the returned list of giving opportunities when 
 | offset | INT | Number of results to skip, useful for pagination. | 0 |
 | sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g. sort="created_at&#124;desc"| gi_created_at |
 | status | STRING | Campaign status, "active", "inactive" or "both". | active |
-| related | BOOLEAN | Entering "true" will make available the `{gi_campaign}{/gi_campaign}` tag pair with a full set of variables related to the opportunity's parent campaign.  | false |
+| related | BOOLEAN | Entering "true" will make available the `{opportunity_campaign}{/opportunity_campaign}` tag pair with a full set of variables related to the opportunity's parent campaign.  | false |
 
 #### Single Variables
 
@@ -203,6 +203,32 @@ The following is available in this tag pair:
 | {{campaign_responses_status}} | Returns `true` or `false` depending on whether the field is currently set to active or not |
 | {{campaign_responses_required}} | Returns `true` or `false` depending on whether the field is currently required |
 
+##### Supporters
+
+Lead supporters that are added to an opportunity are included in the following tag pair:
+
+     {{opportunity_supporters}}
+         ...
+     {{/opportunity_supporters}}
+
+The following is available in this tag pair:
+
+| Variable        | Description|
+| ------------- |:-------------|
+| {{suporter_id_token}} | Returns a unique identifier for the supporter |
+| {{supporter_first_name}} | Returns first name |
+| {{supporter_last_name}} | Returns first name |
+| {{supporter_email_address}} | Returns email address, which also serves as a critical unique identifier for the supporter |
+| {{supporter_street_address}} | Street address |
+| {{supporter_city}} | City |
+| {{supporter_state}} | State |
+| {{supporter_postal_code}} | Zip |
+| {{supporter_country}} | Country |
+| {{supporter_donations_total}} | Total value of donations made by this supporter |
+| {{supporter_total_donations}} | Total count of donations made by this supporter |
+| {{supporter_date_added_to_opportunity}} | Timestamp of date and time when supporter was added as a lead to an opportunity. |
+
+
 ### Donations
 
     {{givingimpact:donations campaign="{id_token}"}} Content {{/givingimpact:donations}}
@@ -231,7 +257,8 @@ You need to provide a campaign token, opportunity token **or** dondation token *
 | ------------ |:-------------|:-------------|:-------------|
 | limit | INT | Limits the number of results returned. | 10 |
 | offset | INT | Number of results to skip, useful for pagination. | 0 |
-| sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g.    sort="gi_created_at&#124;desc"| gi_created_at |
+| sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g.    sort="donation_donation_date&#124;desc"| donation_donation_date|asc |
+| related | BOOLEAN | Entering "true" will make available all related opportunity and/or campaign data that the donation was made to. | false |
 
 #### Single Variables
 
@@ -239,7 +266,7 @@ You need to provide a campaign token, opportunity token **or** dondation token *
 | ------------- |:-------------|
 | {{donation_id_token}} | Unique API token and id for the donation. |
 | {{donation_donation_date}} | Timestamp of donation date and time. |
-| {{donation_campaign}} OR {{donation_opportunity}} | Unique API token for campaign OR opportunity that the donation is most directly associated with.|
+| {{donation_campaign}} OR {{donation_opportunity}} | Unique API token for campaign OR opportunity that the donation is most directly associated with. If the `related="true"` parameter is used, these will become tag pairs. Details below.|
 | {{donation_first_name}} | Donor first name |
 | {{donation_last_name}} | Donor last name |
 | {{donation_billing_address1}} | Donor address |
@@ -270,6 +297,39 @@ The following variables are available within this tag pair.
 | {{custom_responses_field_label}} | Returns the label of the field |
 | {{custom_responses_response}} | Returns the donor's response if entered |
 | {{custom_responses_status}} | Returns `true` or `false` depending on whether the field is currently set to active or not |
+
+##### Related Campaign or Giving Opportunity
+
+When the `related="true"` parameter is used then you have access to full data sets on the campaign and/or opportunity that the donation was made to.
+
+     {{ donation_opportunity }}
+
+       {{opportunity_id_token}}
+       {{opportunty_title}}
+       ...
+       All variables returned by the opportunity will be available here
+
+       {{opportunity_campaign}}
+
+         {{campaign_id_token}}
+         {{campaign_title}}
+         ...
+         All variables returned by the campaign will be available here
+
+       {{/opportunity_campaign}}
+
+     {{ /donation_opportunity }}
+
+     or
+
+     {{ donation_campaign }}
+
+       {{campaign_id_token}}
+       {{campaign_title}}
+       ...
+       All variables returned by the campaign will be available here
+       
+     {{ /donation_campaign }}
 
 #### Donation Form
 
@@ -587,4 +647,3 @@ The `after_donation` hook is fired _after_ a new donation is created via the don
 | ------------ |:-------------|:-------------|
 | donation_token | STRING | The id token of the new donation |
 | donation | OBJECT | The new donation object |
-
