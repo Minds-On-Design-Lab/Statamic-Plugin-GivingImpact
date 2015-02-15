@@ -495,6 +495,8 @@ END;
             }
         }
 
+        $sort .= '|'.$dir;
+
         return $sort;
     }
 
