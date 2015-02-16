@@ -29,7 +29,7 @@ For more about Giving Impact and to view our full documentation and learning rea
 * [Campaigns](#campaigns)
 * [Opportunities](#opportunities)
 * [Donations](#donations)
-* [Donation Checkout](#donation-checkoupt)
+* [Donation Checkout](#donation-checkout)
 * [Opportunity Form](#opportunity-form)
 * [Hooks](#hooks)
 
@@ -328,7 +328,7 @@ When the `related="true"` parameter is used then you have access to full data se
        {{campaign_title}}
        ...
        All variables returned by the campaign will be available here
-       
+
      {{ /donation_campaign }}
 
 #### Donation Form
