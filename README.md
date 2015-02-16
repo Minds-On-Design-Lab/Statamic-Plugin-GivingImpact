@@ -78,8 +78,6 @@ For more about Giving Impact and to view our full documentation and learning rea
 | {{campaign_youtube_id}} | YouTube ID for campaign video. |
 | {{campaign_hash_tag}} | Twitter hashtag for the campaign. |
 | {{campaign_analytics_id}} | Google Analytics Profile ID for the Campaign. |
-| {{campaign_campaign_color}} | Campaign accent color.  |
-| {{campaign_header_font_color}} | Campaign accent color.  |
 | {{campaign_display_donation_target}} | Returns `true` or `false` for the campaign preference to show or hide the target donation amount. Useful to use as a conditional around the `{{campaign_donation_target}}` variable to respect this preference. |
 | {{campaign_display_donation_total}} | Returns `true` or `false` for the campaign preference to show or hide the current donation total. Useful to use as a conditional around the `{{campaign_donation_total}}` variable to respect this preference. |
 
