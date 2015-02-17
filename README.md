@@ -421,7 +421,14 @@ The following is an example of a **Campaign** checkout Form. Please note that al
       <legend>Donation</legend>
         <label class="required">Donation Amount:</label>
 
-        <input type="text" name="donation_amount" value="{{value_donation_amount}}" />
+        <!-- Donation levels or Open Donation -->
+        {{ if campaign_enable_donation_levels }}
+          {{ campaign_donation_levels }}
+          <label for="radio1"><input type="radio" name="donation_level_id" value="{{ donation_levels_level_id }}" /> ${{ donation_levels_amount|format_number:2 }} - {{ donation_levels_label }}</label>
+          {{ /campaign_donation_levels }}
+        {{ else }}
+          <input type="text" name="donation_amount" value="{{value_donation_amount}}" />
+        {{ endif }}
 
     </fieldset>
     <fieldset>
@@ -436,6 +443,26 @@ The following is an example of a **Campaign** checkout Form. Please note that al
         <input type="text" name="email" value="{{value_email}}" />
         <label id="may_contact"><input type="checkbox" value="1" name="contact" id="may_contact" checked /> You may contact me with future updates</label>
 
+        <!-- Custom Donation Fields -->
+        {{ if campaign_custom_fields|empty }}
+        {{ else }}
+          {{ campaign_custom_fields }}
+            {{ if custom_fields_status }}
+              <label{{ if custom_fields_required }} class="required"{{ endif }}>{{ custom_fields_field_label }}</label>
+              {{ if custom_fields_field_type == "text" }}
+                <input type="text" name="fields[{{ custom_fields_field_id }}]">
+              {{ endif }}
+              {{ if custom_fields_field_type == "dropdown" }}
+                <select name="fields[{{ custom_fields_field_id }}]">
+                  <option value=""></option>
+                {{ custom_fields_options }}
+                  <option value="{{ value }}">{{ value }}</option>
+                {{ /custom_fields_options }}
+                </select>
+              {{ endif }}
+            {{ endif }}
+          {{ /campaign_custom_fields }}
+        {{ endif }}
     </fieldset>
     <fieldset>
       <legend>Payment Information</legend>
