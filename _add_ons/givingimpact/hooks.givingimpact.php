@@ -369,7 +369,7 @@ class Hooks_givingimpact extends Hooks {
         $donation->billing_state     = $state;
         $donation->billing_postal_code = $zip;
         $donation->billing_country   = 'US';
-        $donation->donation_total    = $donation_amount;
+        $donation->donation_total    = $donation_amount * 100;
         $donation->donation_level_id = $donation_level_id;
         $donation->custom_responses  = $custom_responses;
         $donation->card              = $card;
