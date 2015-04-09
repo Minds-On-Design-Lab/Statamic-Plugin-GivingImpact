@@ -145,7 +145,7 @@ class Hooks_givingimpact extends Hooks {
         $opp->description       = $description;
         $opp->status            = 1;
         $opp->campaign_responses= $campaign_responses;
-        $opp->donation_target   = $target ? $target : 0;
+        $opp->donation_target   = $target ? $target * 100 : 0;
 
         $supporter = array();
         if( $supporter_email ) {

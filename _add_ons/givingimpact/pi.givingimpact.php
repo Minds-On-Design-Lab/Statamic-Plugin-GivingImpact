@@ -26,6 +26,15 @@ class Plugin_givingimpact extends Plugin {
     private $private_key    = false;
     private $public_key     = false;
 
+    public function money() {
+        $number = (int) $this->content;
+        if( !$number ) {
+            return '0';
+        }
+
+        return number_format($number/100, 0, '.', ',');
+    }
+
     /**
      * Campaigns method
      *
