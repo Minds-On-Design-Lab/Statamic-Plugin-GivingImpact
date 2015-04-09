@@ -18,7 +18,188 @@ class Hooks_givingimpact extends Hooks {
     private $public_key     = false;
 
     public function givingimpact__post_opportunity() {
-        echo 'hi';
+        $token          = Request::post('c');
+        $title          = Request::post('title');
+        $description    = Request::post('description');
+        $youtube        = Request::post('youtube');
+        $target         = Request::post('target');
+        $captcha        = Request::post('captcha');
+
+        $supporter_first_name   = Request::post('supporter_first_name', false);
+        $supporter_last_name    = Request::post('supporter_last_name', false);
+        $supporter_email        = Request::post('supporter_email', false);
+        $supporter_street       = Request::post('supporter_street', false);
+        $supporter_city         = Request::post('supporter_city', false);
+        $supporter_state        = Request::post('supporter_state', false);
+        $supporter_zip          = Request::post('supporter_zip', false);
+
+        $return_path    = base64_decode(Request::post('rtp'));
+
+        // $related = $this->EE->input->post('related', false);
+        $related = true;
+
+        $next   = Request::post('NXT');
+        $notify = Request::post('NTF');
+
+        if( strpos($next, '/') !== 0 && strpos($next, 'http') !== 0 ) {
+            $next = Path::clean(Path::resolve($next));
+        }
+
+        // if( $notify && !valid_email($notify) ) {
+        //     $notify = false;
+        // }
+        //
+
+        $this->runHook('before_opportunity', 'call', null, array(
+            'title'             => $title,
+            'description'       => $description,
+            'youtube'           => $youtube,
+            'target'            => $target
+        ));
+
+        if( !$token || !$title || !$description ) {
+            $errors = array();
+            if( !$token ) {
+                $errors[] = 'Campaign token is required';
+            }
+            if( !$title ) {
+                $errors[] = 'Title is required';
+            }
+            if( !$description ) {
+                $errors[] = 'Description is required';
+            }
+
+            Session::setFlash('formvals', serialize(array(
+                'title'             => $title,
+                'description'       => $description,
+                'youtube'           => $youtube,
+                'target'            => $target,
+                'errors'            => $this->prep_errors($errors),
+                'supporter_first_name'  => $supporter_first_name,
+                'supporter_last_name'   => $supporter_last_name,
+                'supporter_email'       => $supporter_email,
+                'supporter_street'      => $supporter_street,
+                'supporter_city'        => $supporter_city,
+                'supporter_state'       => $supporter_state,
+                'supporter_zip'         => $supporter_zip
+            )));
+
+            return URL::redirect($return_path, 301);
+        }
+
+
+        $obj = $this->gi()->campaign
+            ->fetch($token);
+
+        $campaign_responses = array();
+
+        if( array_key_exists('campaign_fields', $obj) && is_array(Request::post('fields')) ) {
+
+            $responses = Request::post('fields');
+
+            $errors = array();
+
+            foreach( $obj->campaign_fields as $f ) {
+                if( $f->required && $f->status && !$responses[$f->field_id] ) {
+                    $errors[] = $f->field_label.' is required';
+                    break;
+                }
+
+                if( !array_key_exists($f->field_id, $responses) ) {
+                    continue;
+                }
+                $item = new stdClass;
+                $item->response             = $responses[$f->field_id];
+                $item->campaign_field_id    = $f->field_id;
+
+                $campaign_responses[] = $item;
+            }
+
+            if( count($errors) ) {
+                Session::setFlash('formvals', serialize(array(
+                    'title'             => $title,
+                    'description'       => $description,
+                    'status'            => $status,
+                    'youtube'           => $youtube,
+                    'target'            => $target,
+                    'errors'            => $this->prep_errors($errors),
+                    'supporter_first_name'  => $supporter_first_name,
+                    'supporter_last_name'   => $supporter_last_name,
+                    'supporter_email'       => $supporter_email,
+                    'supporter_street'      => $supporter_street,
+                    'supporter_city'        => $supporter_city,
+                    'supporter_state'       => $supporter_state,
+                    'supporter_zip'         => $supporter_zip
+                )));
+
+                return URL::redirect($return_path, 301);
+            }
+        }
+
+        // pack it
+
+        $opp = $this->gi()->opportunity;
+
+        $opp->campaign_token    = $token;
+        $opp->title             = $title;
+        $opp->description       = $description;
+        $opp->status            = 1;
+        $opp->campaign_responses= $campaign_responses;
+        $opp->donation_target   = $target ? $target * 100 : 0;
+
+        $supporter = array();
+        if( $supporter_email ) {
+            $supporter = array(
+                'email_address'     => $supporter_email
+            );
+            $check = array(
+                'first_name',
+                'last_name',
+                'street',
+                'city',
+                'state',
+                'zip'
+            );
+            foreach( $check as $str ) {
+                $v = 'supporter_'.$str;
+                if( isset($v) && $$v !== false ) {
+                    $supporter[$str] = $$v;
+                }
+            }
+        }
+
+        if( count($supporter) ) {
+            $opp->supporters = array($supporter);
+        }
+
+        if( $youtube ) {
+            $opp->youtube_id = $youtube;
+        }
+
+        if( $_FILES && array_key_exists('image', $_FILES) ) {
+            $image = $_FILES['image'];
+
+            if( !$image['error'] ) {
+                $raw = base64_encode(file_get_contents($image['tmp_name']));
+                $type = $image['type'];
+
+                $opp->image_file = $raw;
+                $opp->image_type = $type;
+            }
+        }
+
+        $result = $opp->create();
+
+        $new_token = $result->id_token;
+
+        $this->runHook('after_opportunity', 'call', null, array(
+            'opportunity_token' => $new_token,
+            'opportunity'       => $result
+        ));
+
+        Session::setFlash('opportunity_token', $new_token);
+
+        return URL::redirect($next.'?opportunity='.$new_token);
     }
 
     public function givingimpact__post_donation() {
@@ -60,6 +241,21 @@ class Hooks_givingimpact extends Hooks {
             'state',
             'zip'
         );
+
+        $this->runHook('before_donation', 'call', null, array(
+            'first_name'        => $first_name,
+            'last_name'         => $last_name,
+            'email'             => $email,
+            'street'            => $street,
+            'city'              => $city,
+            'state'             => $state,
+            'zip'               => $zip,
+            'donation_level'    => $donation_level,
+            'donation_level_id' => $donation_level_id,
+            'donation_amount'   => $donation_amount,
+            'contact'           => $contact
+        ));
+
 
         // if( $notify && !valid_email($notify) ) {
         //     $notify = false;
@@ -111,32 +307,34 @@ class Hooks_givingimpact extends Hooks {
         if( $token && strlen($token) ) {
             $obj = $this->gi()->campaign
                 ->fetch($token);
+
+            $camp = $obj;
         } else {
             $obj = $this->gi()->opportunity
                 ->related(1)
                 ->fetch($opportunity_token);
 
-            $obj = $obj->campaign;
+            $camp = $obj->campaign;
         }
 
         $custom_responses = array();
-        if( array_key_exists('custom_fields', $obj) && is_array(Request::post('fields')) ) {
+        if( array_key_exists('custom_fields', $camp) && is_array(Request::post('fields')) ) {
 
             $responses = Request::post('fields');
 
             $errors = array();
 
-            foreach( $obj['custom_fields'] as $f ) {
-                if( $f['required'] && $f['status'] && !$responses[$f['field_id']] ) {
-                    $errors['fields['.$f['field_id'].']'] = $f['field_label'].' is required';
+            foreach( $camp->custom_fields as $f ) {
+                if( $f->required && $f->status && !$responses[$f->field_id] ) {
+                    $errors['fields['.$f->field_id.']'] = $f->field_label.' is required';
                     break;
                 }
 
-                if( !array_key_exists($f['field_id'], $responses) ) {
+                if( !array_key_exists($f->field_id, $responses) ) {
                     continue;
                 }
 
-                $custom_responses[$f['field_id']] = $responses[$f['field_id']];
+                $custom_responses[$f->field_id] = $responses[$f->field_id];
             }
 
             if( count($errors) ) {
@@ -171,7 +369,7 @@ class Hooks_givingimpact extends Hooks {
         $donation->billing_state     = $state;
         $donation->billing_postal_code = $zip;
         $donation->billing_country   = 'US';
-        $donation->donation_total    = $donation_amount;
+        $donation->donation_total    = $donation_amount * 100;
         $donation->donation_level_id = $donation_level_id;
         $donation->custom_responses  = $custom_responses;
         $donation->card              = $card;
@@ -180,6 +378,11 @@ class Hooks_givingimpact extends Hooks {
         $result = $donation->create();
 
         $new_token = $result->id_token;
+
+        $this->runHook('after_donation', 'call', null, array(
+            'donation_token' => $new_token,
+            'donation'       => $result
+        ));
 
         Session::setFlash('donation_token', $new_token);
 
@@ -194,8 +397,9 @@ class Hooks_givingimpact extends Hooks {
 
         $this->private_key =  $this->fetchConfig('_private_key');
         $this->public_key = $this->fetchConfig('_public_key');
+        $this->end_point = $this->fetchConfig('_end_point', false);
 
-        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key);
+        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key, $this->end_point);
 
         return $this->api_handle;
     }

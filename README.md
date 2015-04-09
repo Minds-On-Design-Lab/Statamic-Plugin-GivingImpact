@@ -10,7 +10,7 @@ For more about Giving Impact and to view our full documentation and learning rea
 ### Module Credits
 
 **Developed By:** Minds On Design Lab - http://mod-lab.com<br />
-**Version:** 1.0<br />
+**Version:** 1.1<br />
 **Copyright:** Copyright &copy; 2010-2014 Minds On Design Lab<br />
 **License:** Licensed under the MIT license - Please refer to LICENSE
 
@@ -29,7 +29,8 @@ For more about Giving Impact and to view our full documentation and learning rea
 * [Campaigns](#campaigns)
 * [Opportunities](#opportunities)
 * [Donations](#donations)
-* [Donation Checkout](#donation-checkoupt)
+* [Donation Checkout Form](#donation-form)
+* [Opportunity Form](#opportunity-form)
 * [Hooks](#hooks)
 
 ### Install
@@ -79,8 +80,6 @@ Get a list of campaigns or a single campaing if token is provided.
 | {{campaign_youtube_id}} | YouTube ID for campaign video. |
 | {{campaign_hash_tag}} | Twitter hashtag for the campaign. |
 | {{campaign_analytics_id}} | Google Analytics Profile ID for the Campaign. |
-| {{campaign_campaign_color}} | Campaign accent color.  |
-| {{campaign_header_font_color}} | Campaign accent color.  |
 | {{campaign_display_donation_target}} | Returns `true` or `false` for the campaign preference to show or hide the target donation amount. Useful to use as a conditional around the `{{campaign_donation_target}}` variable to respect this preference. |
 | {{campaign_display_donation_total}} | Returns `true` or `false` for the campaign preference to show or hide the current donation total. Useful to use as a conditional around the `{{campaign_donation_total}}` variable to respect this preference. |
 
@@ -134,7 +133,7 @@ Get a list of opportunities within a campaign or a single opportunity.
 
 #### Required Parameters
 
-You need to provide a campaign id_token **or** opportunity id_token.
+You need to provide a campaign id_token **or** opportunity id_token **or** a supporter.
 
 * A campaign token will generate a list of children opportunities.
 * An opportunity token will return the single opportunity.
@@ -143,6 +142,7 @@ You need to provide a campaign id_token **or** opportunity id_token.
 | ------------ |:-------------|:-------------|
 | campaign | STRING | Parent campaign token. This is used to display the list of Giving Opportunities associated with a specific campaign. |
 | opportunity | STRING | Unique giving opportunity token. This is used to display a single specific Giving Opportunity. |
+| supporter | STRING | Can be unique supporter token OR supporter email address. This is used to display a list of Giving Opportunities for a supporter. |
 
 ##### Optional Parameters
 
@@ -154,7 +154,7 @@ The following are used to modify the returned list of giving opportunities when 
 | offset | INT | Number of results to skip, useful for pagination. | 0 |
 | sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g. sort="created_at&#124;desc"| gi_created_at |
 | status | STRING | Campaign status, "active", "inactive" or "both". | active |
-| related | BOOLEAN | Entering "true" will make available the `{gi_campaign}{/gi_campaign}` tag pair with a full set of variables related to the opportunity's parent campaign.  | false |
+| related | BOOLEAN | Entering "true" will make available the `{opportunity_campaign}{/opportunity_campaign}` tag pair with a full set of variables related to the opportunity's parent campaign.  | false |
 
 #### Single Variables
 
@@ -207,6 +207,32 @@ The following is available in this tag pair:
 | {{campaign_responses_status}} | Returns `true` or `false` depending on whether the field is currently set to active or not |
 | {{campaign_responses_required}} | Returns `true` or `false` depending on whether the field is currently required |
 
+##### Supporters
+
+Lead supporters that are added to an opportunity are included in the following tag pair:
+
+     {{opportunity_supporters}}
+         ...
+     {{/opportunity_supporters}}
+
+The following is available in this tag pair:
+
+| Variable        | Description|
+| ------------- |:-------------|
+| {{suporter_id_token}} | Returns a unique identifier for the supporter |
+| {{supporter_first_name}} | Returns first name |
+| {{supporter_last_name}} | Returns first name |
+| {{supporter_email_address}} | Returns email address, which also serves as a critical unique identifier for the supporter |
+| {{supporter_street_address}} | Street address |
+| {{supporter_city}} | City |
+| {{supporter_state}} | State |
+| {{supporter_postal_code}} | Zip |
+| {{supporter_country}} | Country |
+| {{supporter_donations_total}} | Total value of donations made by this supporter |
+| {{supporter_total_donations}} | Total count of donations made by this supporter |
+| {{supporter_date_added_to_opportunity}} | Timestamp of date and time when supporter was added as a lead to an opportunity. |
+
+
 ### Donations
 
 Get a list of donations related to a Campaign or Giving Opportunity or retrieve a single donation record.
@@ -217,7 +243,7 @@ Get a list of donations related to a Campaign or Giving Opportunity or retrieve 
 
 ##### Required Parameters
 
-You need to provide a campaign token, opportunity token **or** dondation token.
+You need to provide a campaign token, opportunity token **or** dondation token **or** a supporter.
 
 - A campaign token will generate a list of donations within the campaign, including those made through any children opportunities.
 - An opportunity token will return a list of donations for the specified opportunity only.
@@ -229,6 +255,7 @@ You need to provide a campaign token, opportunity token **or** dondation token.
 | campaign  | STRING | Parent campaign id_token |
 | opportunity | STRING | Specfic opportunity id_token |
 | donation | STRING | Specfic donation id_token |
+| supporter | STRING | Can be unique supporter token OR supporter email address. This is used to display a list of donations for a supporter. |
 
 ##### Optional Parameters
 
@@ -236,7 +263,8 @@ You need to provide a campaign token, opportunity token **or** dondation token.
 | ------------ |:-------------|:-------------|:-------------|
 | limit | INT | Limits the number of results returned. | 10 |
 | offset | INT | Number of results to skip, useful for pagination. | 0 |
-| sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g.    sort="gi_created_at&#124;desc"| gi_created_at |
+| sort | STRING | Property to sort results by. Also accepts a direction preceded by a pipe, e.g.    sort="donation_donation_date&#124;desc"| donation_donation_date|asc |
+| related | BOOLEAN | Entering "true" will make available all related opportunity and/or campaign data that the donation was made to. | false |
 
 #### Single Variables
 
@@ -244,7 +272,7 @@ You need to provide a campaign token, opportunity token **or** dondation token.
 | ------------- |:-------------|
 | {{donation_id_token}} | Unique API token and id for the donation. |
 | {{donation_donation_date}} | Timestamp of donation date and time. |
-| {{donation_campaign}} OR {{donation_opportunity}} | Unique API token for campaign OR opportunity that the donation is most directly associated with.|
+| {{donation_campaign}} OR {{donation_opportunity}} | Unique API token for campaign OR opportunity that the donation is most directly associated with. If the `related="true"` parameter is used, these will become tag pairs. Details below.|
 | {{donation_first_name}} | Donor first name |
 | {{donation_last_name}} | Donor last name |
 | {{donation_billing_address1}} | Donor address |
@@ -275,6 +303,39 @@ The following variables are available within this tag pair.
 | {{custom_responses_field_label}} | Returns the label of the field |
 | {{custom_responses_response}} | Returns the donor's response if entered |
 | {{custom_responses_status}} | Returns `true` or `false` depending on whether the field is currently set to active or not |
+
+##### Related Campaign or Giving Opportunity
+
+When the `related="true"` parameter is used then you have access to full data sets on the campaign and/or opportunity that the donation was made to.
+
+     {{ donation_opportunity }}
+
+       {{opportunity_id_token}}
+       {{opportunty_title}}
+       ...
+       All variables returned by the opportunity will be available here
+
+       {{opportunity_campaign}}
+
+         {{campaign_id_token}}
+         {{campaign_title}}
+         ...
+         All variables returned by the campaign will be available here
+
+       {{/opportunity_campaign}}
+
+     {{ /donation_opportunity }}
+
+     or
+
+     {{ donation_campaign }}
+
+       {{campaign_id_token}}
+       {{campaign_title}}
+       ...
+       All variables returned by the campaign will be available here
+
+     {{ /donation_campaign }}
 
 #### Donation Form
 
@@ -368,7 +429,14 @@ The following is an example of a **Campaign** checkout Form. Please note that al
       <legend>Donation</legend>
         <label class="required">Donation Amount:</label>
 
-        <input type="text" name="donation_amount" value="{{value_donation_amount}}" />
+        <!-- Donation levels or Open Donation -->
+        {{ if campaign_enable_donation_levels }}
+          {{ campaign_donation_levels }}
+          <label for="radio1"><input type="radio" name="donation_level_id" value="{{ donation_levels_level_id }}" /> ${{ donation_levels_amount|format_number:2 }} - {{ donation_levels_label }}</label>
+          {{ /campaign_donation_levels }}
+        {{ else }}
+          <input type="text" name="donation_amount" value="{{value_donation_amount}}" />
+        {{ endif }}
 
     </fieldset>
     <fieldset>
@@ -383,6 +451,26 @@ The following is an example of a **Campaign** checkout Form. Please note that al
         <input type="text" name="email" value="{{value_email}}" />
         <label id="may_contact"><input type="checkbox" value="1" name="contact" id="may_contact" checked /> You may contact me with future updates</label>
 
+        <!-- Custom Donation Fields -->
+        {{ if campaign_custom_fields|empty }}
+        {{ else }}
+          {{ campaign_custom_fields }}
+            {{ if custom_fields_status }}
+              <label{{ if custom_fields_required }} class="required"{{ endif }}>{{ custom_fields_field_label }}</label>
+              {{ if custom_fields_field_type == "text" }}
+                <input type="text" name="fields[{{ custom_fields_field_id }}]">
+              {{ endif }}
+              {{ if custom_fields_field_type == "dropdown" }}
+                <select name="fields[{{ custom_fields_field_id }}]">
+                  <option value=""></option>
+                {{ custom_fields_options }}
+                  <option value="{{ value }}">{{ value }}</option>
+                {{ /custom_fields_options }}
+                </select>
+              {{ endif }}
+            {{ endif }}
+          {{ /campaign_custom_fields }}
+        {{ endif }}
     </fieldset>
     <fieldset>
       <legend>Payment Information</legend>
@@ -408,3 +496,187 @@ The following is an example of a **Campaign** checkout Form. Please note that al
 
     <!-- donate_js provides automatic Stripe integration and formatting, along with Stripe error handling -->
     {{givingimpact:donate_js}}
+
+#### Opportunity Form
+
+    {{givingimpact:opportunity_form
+      campaign="######"
+    }}
+
+    ... form content
+
+    {{/givingimpact:opportunity_form}}
+
+###### Required Parameters
+
+| Parameter | Data Type | Description |
+| ------------ |:-------------|:-------------|
+| campaign | STRING | id_token for the Campaign the Giving Opportunity is towards. |
+
+###### Optional Parameters
+
+| Parameter | Data Type | Description | Default |
+| ------------ |:-------------|:-------------|:-------------|
+| return | STRING | a return URL that supports `{{path=foo/bar}}` | returns to template of form |
+
+#### Validation and Required Fields
+
+##### Form Fields
+
+* title (REQUIRED)
+* description (REQUIRED)
+* target
+* youtube
+* hash_tag
+* analytics_id
+* image (a "file" form element for Opportunity logo)
+* fields (see Campaign Fields below)
+
+##### Validation and Error Handling
+
+In the event of a data entry or API error, the user will be returned to your form and the `{{form_error}}{{/form_error}}` tag pair will be available. By looping through the tag pair, you'll be able to display the validation errors:
+
+    {{givingimpact:opportunity}}
+
+        {{ if form_errors }}
+            Aww nuts!
+            {{form_errors}}
+                {{error}}
+            {{/form_errors}}
+        {{endif}}
+
+        ...
+
+    {{/givingimpact:opportunity}}
+
+You may use the following variables to repopulate the form upon return from validation error.
+
+* `{{value_title}}`
+* `{{value_description}}`
+* `{{value_target}}`
+* `{{value_youtube}}`
+* `{{value_hash_tag}}`
+* `{{value_analytics_id}}`
+
+Additionally, the form exposes the parent `{{campaign}}` object along with `{{campaign_campaign_fields}}` for custom field generation.
+
+#### Returned Data
+
+On successful submission and processing of form data, the API and module will return the new opportunity's unique token. This value are returned in two ways.
+
+1. The `opportunity_token` will be dynamically added as a GET parameter **return** parameter detailed above.
+2. If you return to the same template that contains the form tag, you may use the `{{opportunity}}{{/opportunity}}` tag pair to get donation information.
+
+#### Campaign Example Giving Opportunity Form
+
+Using the built-in `{{givingimpact:opportunity_form}}` tag pair, you can easily create a new form with all the necessary information.
+
+    {{givingimpact:opportunity_form campaign="fa0d0220e0"}}
+
+        {{ if form_errors }}
+            Aww nuts!
+            {{form_errors}}
+                {{error}}
+            {{/form_errors}}
+        {{endif}}
+
+        {{campaign}}
+            Create new Giving Opportunity for {{campaign_title}}
+        {{/campaign}}
+
+        {{opportunity}}
+            Awesome! Your Giving Opportunity, {{opportunity_title}} has been created!
+        {{/opportunity}}
+
+        <label>Title</label>
+        <input type="text" name="title" value="{{value_title}}" />
+
+        <label>Description</label>
+        <textarea name="description" rows="5" cols="50">{{value_description}}</textarea>
+
+        <label>YouTube Video ID</label>
+        <input type="text" name="youtube" value="{{value_youtube}}" />
+
+        <label>Hash Tag</label>
+        <input type="text" name="hash_tag" value="{{value_hash_tag}}" />
+
+        <label>Google Analytics Tracking ID</label>
+        <input type="text" name="analytics_id" value="{{value_analytics_id}}" />
+
+        <label>Donation Target</label>
+        <input type="text" name="target" value="{{value_target}}" />
+
+        <label>Campaign Logo</label>
+        <input type="file" name="image" />
+
+        {{campaign_campaign_fields}}
+            {{if campaign_fields_status}}
+                <label>{{campaign_fields_field_label}}</label>
+                {{if campaign_fields_field_type == "dropdown"}}
+                    <select name="fields[{{campaign_fields_field_id}}]">
+                        {{campaign_fields_options}}
+                            <option value="{{value}}">{{value}}</option>
+                        {{/campaign_fields_options}}
+                    </select>
+                {{else}}
+                    <input type="text" name="fields[{{campaign_fields_field_id}}]" />
+                {{endif}}
+                <br />
+            {{endif}}
+        {{/campaign_campaign_fields}}
+
+        <input type="submit" value="Create Opportunity" />
+
+    {{/givingimpact:opportunity_form}}
+
+### Hooks
+
+##### givingimpact__before_opportunity
+
+The `before_opportunity` hook is fired _before_ a new opportunity is created via the opportunity form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|:-------------|
+| title | STRING | Opportunity title |
+| description | STRING | User description |
+| youtube | STRING | YouTube video id |
+| hash_tag | STRING | Campaign hashtag |
+| target | INT | Campaign donation target |
+
+
+##### givingimpact__after_opportunity
+
+The `after_opportunity` hook is fired _after_ a new opportunity is created via the opportunity form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|:-------------|
+| opportunity_token | STRING | The id token of the new opportunity |
+| opportunity | OBJECT | The new opportunity object |
+
+##### givingimpact__before_donation
+
+The `before_donation` hook is fired _before_ a new donation is created via the donate form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|:-------------|
+| first_name | STRING | Donor first name |
+| last_name | STRING | Donor last name |
+| email | STRING | Donor email |
+| street | STRING | Donor street address |
+| city | STRING | Donor city |
+| state | STRING | Donor state/province |
+| zip | STRING | Donor zip |
+| donation_level | STRING | Donation level, if applicable |
+| donation_level_id | INT | Donation level unique ID, if applicable |
+| donation_amount | INT | Donation amount |
+| contact | BOOLEAN | Whether the donor wants to be contacted |
+
+
+##### givingimpact__after_donation
+
+The `after_donation` hook is fired _after_ a new donation is created via the donate form. This `call` hook emits an array with the following information
+
+| Parameter | Type | Description |
+| ------------ |:-------------|:-------------|
+| donation_token | STRING | The id token of the new donation |
+| donation | OBJECT | The new donation object |

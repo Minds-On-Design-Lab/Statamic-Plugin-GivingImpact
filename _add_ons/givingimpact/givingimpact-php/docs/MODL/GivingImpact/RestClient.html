@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="robots" content="index, follow, all" />
-        <title>MODL\GivingImpact\RestClient | </title>
+        <title>MODL\GivingImpact\RestClient | Giving Impact API</title>
                     <link rel="stylesheet" type="text/css" href="../../stylesheet.css">
                             </head>
         <body id="class">
@@ -12,32 +12,28 @@
             <li><a href="../../classes.html">Classes</a></li>
                             <li><a href="../../namespaces.html">Namespaces</a></li>
                         <li><a href="../../interfaces.html">Interfaces</a></li>
-            <li><a href="../../traits.html">Traits</a></li>
             <li><a href="../../doc-index.html">Index</a></li>
             
         </ul>
 
-        <div id="title"></div>
+        <div id="title">Giving Impact API</div>
 
             <div class="type">Class</div>
     <h1><a href="../../MODL/GivingImpact.html">MODL\GivingImpact</a>\RestClient</h1>
     </div>
         <div class="content">
-                <p>    class
-    <strong>RestClient</strong></p>
+                <p>class    <strong>RestClient</strong></p>
 
             <div class="description">
             <p>REST API Client base.</p>
-            <p>Uses cURL library to communicate with API</p>
-
-<pre><code>&lt;pre&gt;
-$client = new \MODL\GivingImpact\RestClient
-$client-&gt;url = 'http://base.url';
-
-    $return = $client-&gt;get(data('sort'=&gt;'created|asc'));
-&lt;/pre&gt;
-</code></pre>
-</p>
+            <p>Uses cURL library to communicate with API<br />
+<br />
+ 	&lt;pre&gt;<br />
+  	$client = new \MODL\GivingImpact\RestClient<br />
+  	$client-&gt;url = &#039;http://base.url&#039;;<br />
+<br />
+ 		$return = $client-&gt;get(data(&#039;sort&#039;=&gt;&#039;created|asc&#039;));<br />
+ 	&lt;/pre&gt;</p>
         </div>
     
     
@@ -70,7 +66,7 @@ $client-&gt;url = 'http://base.url';
                                                             string
                 </td>
                 <td>$user_agent</td>
-                <td class="last">Base user agent string (default is "MODL Client")</td>
+                <td class="last">Base user agent string (default is &quot;MODL Client&quot;)</td>
             </tr>
             </table>
 
@@ -134,14 +130,13 @@ $client-&gt;url = 'http://base.url';
         <h2>Details</h2>
 
                         <h3 id="method___construct">
-        <div class="location">at line 55</div>
+        <div class="location">at line 61</div>
         <code>            public            
     <strong>__construct</strong>(Object $c)</code>
     </h3>
     <div class="details">
         <p>Constructor</p>
-        <p>
-</p>
+        <p></p>
         <div class="tags">
                             <h4>Parameters</h4>
 
@@ -160,17 +155,16 @@ $client-&gt;url = 'http://base.url';
     </div>
 
                 <h3 id="method_buildURL">
-        <div class="location">at line 71</div>
+        <div class="location">at line 77</div>
         <code>            public            String
     <strong>buildURL</strong>(String $path, array $args = array())</code>
     </h3>
     <div class="details">
         <p>Construct a fully qualified URL with path and optional key/value arguments</p>
-        <p><pre>
-    echo $client->buildURL('donations/XXX', array('foo'=>'bar'));
-    // base.url/donations/XXX?foo=bar
-    </pre>
-</p>
+        <p>&lt;pre&gt;<br />
+  	echo $client-&gt;buildURL(&#039;donations/XXX&#039;, array(&#039;foo&#039;=&gt;&#039;bar&#039;));<br />
+  	// base.url/donations/XXX?foo=bar<br />
+ 	&lt;/pre&gt;</p>
         <div class="tags">
                             <h4>Parameters</h4>
 
@@ -193,8 +187,7 @@ $client-&gt;url = 'http://base.url';
                     <table>
         <tr>
             <td>String</td>
-            <td>
-</td>
+            <td></td>
         </tr>
     </table>
 
@@ -204,14 +197,13 @@ $client-&gt;url = 'http://base.url';
     </div>
 
                 <h3 id="method_get">
-        <div class="location">at line 91</div>
+        <div class="location">at line 97</div>
         <code>            public            Object
     <strong>get</strong>(Array $data = false)</code>
     </h3>
     <div class="details">
         <p>Perform a GET action</p>
-        <p>
-</p>
+        <p></p>
         <div class="tags">
                             <h4>Parameters</h4>
 
@@ -239,14 +231,13 @@ $client-&gt;url = 'http://base.url';
     </div>
 
                 <h3 id="method_post">
-        <div class="location">at line 114</div>
+        <div class="location">at line 124</div>
         <code>            public            Object
     <strong>post</strong>(Array $data)</code>
     </h3>
     <div class="details">
         <p>Perform a POST action</p>
-        <p>
-</p>
+        <p></p>
         <div class="tags">
                             <h4>Parameters</h4>
 
@@ -274,14 +265,13 @@ $client-&gt;url = 'http://base.url';
     </div>
 
                 <h3 id="method_curlFetch">
-        <div class="location">at line 139</div>
+        <div class="location">at line 149</div>
         <code>            public            String
     <strong>curlFetch</strong>(Mixed $data = false)</code>
     </h3>
     <div class="details">
         <p>Query REST resource, you should not have to call this method manually, as it is called by the get and post methods.</p>
-        <p>
-</p>
+        <p></p>
         <div class="tags">
                             <h4>Parameters</h4>
 
@@ -289,8 +279,7 @@ $client-&gt;url = 'http://base.url';
                     <tr>
                 <td>Mixed</td>
                 <td>$data</td>
-                <td>
-</td>
+                <td></td>
             </tr>
             </table>
 
@@ -300,8 +289,7 @@ $client-&gt;url = 'http://base.url';
                     <table>
         <tr>
             <td>String</td>
-            <td>
-</td>
+            <td></td>
         </tr>
     </table>
 

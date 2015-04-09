@@ -53,6 +53,10 @@ The following is a list of available methods; however, for full details about ea
    * fetch related statistic logs
  * donations
    * create offline
+ * supporters
+   * fetch single
+   * fetch multiple
+   * fetch related donations
  * custom checkout
 
 ## Docs
@@ -316,6 +320,22 @@ Fetch this Donations's parent Opportunity, if it exists. Note, this is called is
         ->fetch('ABC123')
         ->opportunity;
 
+### Supporters
+
+Specific methods for Supporters
+
+**donations**
+
+Fetch Donations for this Supporter. Note, this is called is a property, not a method
+
+    $supporter = $gi->supporter
+        ->fetch('ABC123');
+
+    $donations = $supporter
+        ->donations
+        ->limit(10)
+        ->fetch();
+
 ### Stats
 
 Fetch Statistics for a Campaign or Opportunity
@@ -411,8 +431,8 @@ The code example below details the bullets above.
 
 ## Donation Form Example
 
-    <?php 
-    
+    <?php
+
     require_once "givingimpact-php/MODL/GivingImpact.php";
 
     use MODL\GivingImpact as GIAPI;
@@ -421,7 +441,7 @@ The code example below details the bullets above.
     $campaign $api->campaign->fetch ('CAMPAIGN_OR_OPPORTUNITY_TOKEN');
 
     // check for a POST object
-    if ($_POST) {  
+    if ($_POST) {
       $_POST = $p;
       $donation = $campaign->donation;
       $donation->donation_total = $p[$amount];
@@ -470,7 +490,7 @@ The code example below details the bullets above.
 
             <label>Last Name</label>
             <input type="text" name="last_name" />
-            
+
             <label>Address</label>
             <input type="text" name="billing_address1" />
 
@@ -483,9 +503,9 @@ The code example below details the bullets above.
             <label>Zip Code</label>
             <input type="text" name="billing_postal_code" />
 
-            <label class="required">Email:</label> 
-            <input type="text" name="email" value="EMAIL" /> 
-            
+            <label class="required">Email:</label>
+            <input type="text" name="email" value="EMAIL" />
+
             <label id="may_contact"><input type="checkbox" value="1" name="contact" id="may_contact" /> You may contact me with future updates</label>
 
             <?php if( $campaign->custom_fields ) : ?>
@@ -544,7 +564,7 @@ The code example below details the bullets above.
 
       </body>
     </html>
-    
+
 ### Donation and Full Credit Card Processing
 You can create a new donation by sending a POST request to the following URI.
 
@@ -573,7 +593,7 @@ In addition to the authentication and user-agent headers, the following header i
       "card": "1234somelongtokenfromstripetostripe"
     }
 
-    
+
 ### Implementation Notes/Tips
 Please see [Giving Impact's Docs](http://givingimpact.com/docs/api/donation-checkout) for implementation notes & tips
 

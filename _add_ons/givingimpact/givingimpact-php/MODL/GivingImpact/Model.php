@@ -25,7 +25,8 @@ class Model {
 		'limit' => false,
 		'offset' => false,
 		'sort' => 'created_at|desc',
-		'status' => false
+		'status' => false,
+		'supporter' => false
 	);
 
 	/**
@@ -144,6 +145,22 @@ class Model {
 	 */
 	public function status($status) {
 		$this->properties['status'] = $status;
+
+		return $this;
+	}
+
+	/**
+	 * Set supporter property for filtering
+	 *
+	 *	<pre>
+	 *		$foo->supporter('test@mod-lab.com');
+	 *  </pre>
+	 *
+	 * @param  String $id Either a supporter token or email
+	 * @return Object this
+	 */
+	public function supporter($id) {
+		$this->properties['supporter'] = $id;
 
 		return $this;
 	}

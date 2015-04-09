@@ -26,6 +26,15 @@ class Plugin_givingimpact extends Plugin {
     private $private_key    = false;
     private $public_key     = false;
 
+    public function money() {
+        $number = (int) $this->content;
+        if( !$number ) {
+            return '0';
+        }
+
+        return number_format($number/100, 0, '.', ',');
+    }
+
     /**
      * Campaigns method
      *
@@ -56,7 +65,7 @@ class Plugin_givingimpact extends Plugin {
         $campaigns = $this->prefix_tags('campaign', json_decode(json_encode($campaigns), true));
 
         foreach( $campaigns as $campaign ) {
-            $out[] = Parse::template($content, $campaign);
+            $out[] = Parse::contextualTemplate($content, $campaign, $this->context);
         }
 
         return implode('', $out);
@@ -82,6 +91,14 @@ class Plugin_givingimpact extends Plugin {
                 ->related($related)
                 ->fetch($token);
             $opportunities = array($opportunities);
+        } elseif( $this->fetchParam('supporter', false) ) {
+            $opportunities = $this->gi()->opportunity
+                ->supporter($this->fetchParam('supporter', false))
+                ->limit($limit)
+                ->offset($offset)
+                ->sort($sort)
+                ->related($related)
+                ->fetch();
         } else {
             $opportunities = $this->gi()->campaign
                 ->fetch($campaign_token)
@@ -99,7 +116,7 @@ class Plugin_givingimpact extends Plugin {
         $opportunities = $this->prefix_tags('opportunity', json_decode(json_encode($opportunities), true));
 
         foreach( $opportunities as $opportunity ) {
-            $out[] = Parse::template($content, $opportunity);
+            $out[] = Parse::contextualTemplate($content, $opportunity, $this->context);
         }
 
         return implode('', $out);
@@ -123,6 +140,7 @@ class Plugin_givingimpact extends Plugin {
 
         if( $token ) {
             $donations = $this->gi()->donation
+                ->related($related)
                 ->fetch($token);
             $donations = array($donations);
         } else {
@@ -133,6 +151,9 @@ class Plugin_givingimpact extends Plugin {
                     ->related($related)
                     ->fetch($campaign_token)
                     ->donations;
+            } elseif( $this->fetchParam('supporter', false) ) {
+                $donations = $this->gi()->donation
+                    ->supporter($this->fetchParam('supporter', false));
             } else {
                 $donations = $this->gi()
                     ->opportunity
@@ -146,6 +167,7 @@ class Plugin_givingimpact extends Plugin {
                 ->sort($sort)
                 ->related($related)
                 ->fetch();
+
         }
 
         $content = $this->content;
@@ -154,7 +176,7 @@ class Plugin_givingimpact extends Plugin {
         $donations = $this->prefix_tags('donation', json_decode(json_encode($donations), true));
 
         foreach( $donations as $donation ) {
-            $out[] = Parse::template($content, $donation);
+            $out[] = Parse::contextualTemplate($content, $donation, $this->context);
         }
 
         return implode('', $out);
@@ -190,14 +212,14 @@ class Plugin_givingimpact extends Plugin {
         $supporters = $this->prefix_tags('supporter', json_decode(json_encode($supporters), true));
 
         foreach( $supporters as $supporter ) {
-            $out[] = Parse::template($content, $supporter);
+            $out[] = Parse::contextualTemplate($content, $supporter, $this->context);
         }
 
         return implode('', $out);
     }
 
     public function donate_js() {
-        $apiUrl = $this->gi()->endpoint;
+        $apiUrl = $this->gi()->end_point;
         $publicKey =  $this->fetchConfig('_public_key');
 
         $formId = $this->fetchParam('id') ? $this->fetchParam('id') : 'donate-form';
@@ -253,15 +275,18 @@ END;
     public function donate_form() {
         $tagdata = $this->content;
 
-        // if( $this->fetchParam('opportunity') ) {
-        //     $opportunities = $this->gi()->opportunity
-        //         ->related(1)
-        //         ->fetch($this->fetchParam('opportunity'));
-        // } else {
-        //     $campaigns = $this->gi()->campaign
-        //         ->related(1)
-        //         ->fetch($this->fetchParam('campaign'));
-        // }
+        $related = $this->related();
+
+        if( $this->fetchParam('opportunity', false) ) {
+            $opportunity = $this->gi()->opportunity
+                ->related($related)
+                ->fetch($this->fetchParam('opportunity', false));
+            $campaigns = $this->prefix_tags('opportunity', json_decode(json_encode(array($opportunity)), true));
+        } else {
+            $campaign = $this->gi()->campaign
+                ->fetch($this->fetchParam('campaign', false));
+            $campaigns = $this->prefix_tags('campaign', json_decode(json_encode(array($campaign)), true));
+        }
 
         $vars = array(
             'value_first_name'  => false,
@@ -275,6 +300,8 @@ END;
             'value_donation_level'      => false,
             'valud_donation_level_id'   => false
         );
+
+        $vars = array_merge($vars, array_shift($campaigns));
 
         if( Session::getFlash('formvals') ) {
             $vals = unserialize(Session::getFlash('formvals'));
@@ -329,6 +356,104 @@ END;
         return $content;
     }
 
+    public function opportunity_form() {
+
+        $token = $this->fetchParam('campaign', false);
+
+        if( $token ) {
+            $campaign = $this->gi()->campaign
+                ->fetch($token);
+        } else {
+            return 'Sorry, you must provide a campaign token';
+        }
+
+        if( !$campaign->has_giving_opportunities ) {
+            return 'Sorry, this campaign doesn\'t support Giving Opportunities';
+        }
+
+        $campaigns = $this->prefix_tags('campaign', json_decode(json_encode(array($campaign)), true));
+
+        $tagdata = $this->content;
+
+        // decode smart quotes
+        $tagdata = preg_replace(
+            '/{{(.[^{]*?)(&#8220;)(.*?)(&#8221;)(.*?)}}/',
+            '{{$1"$3"}}',
+            $tagdata
+        );
+
+        $vars = array(
+            'opportunity_token' => false,
+            'value_title'       => false,
+            'value_description' => false,
+            'value_youtube'     => false,
+            'value_target'      => false,
+            'value_status'      => false,
+            'value_supporter_first_name'  => false,
+            'value_supporter_last_name'   => false,
+            'value_supporter_email'       => false,
+            'value_supporter_street'      => false,
+            'value_supporter_city'        => false,
+            'value_supporter_state'       => false,
+            'value_supporter_zip'         => false,
+        );
+
+        // $vars['campaign'] = $campaigns;
+
+        if( Session::getFlash('formvals') ) {
+            $vals = unserialize(Session::getFlash('formvals'));
+            $errors = $vals['errors'];
+            unset($vals['errors']);
+
+            if( $vals && count($vals) ) {
+                foreach( $vals as $k => $v ) {
+                    $vars['value_'.$k] = $v;
+                }
+            }
+            $vars['form_errors'] = $errors;
+        }
+        if( Session::getFlash('opportunity_token') ) {
+            $opportunity = $this->gi()->opportunity
+                ->fetch(Session::getFlash('opportunity_token'));
+
+            $vars['opportunity'] = $this->prefix_tags('opportunity', json_decode(json_encode(array($opportunity)), true));
+        }
+
+        $vars = array_merge($vars, array_shift($campaigns));
+
+        $tagdata = Parse::template($tagdata, $vars);
+
+        $tag_start = sprintf(
+            '<form method="POST" action="%s" id="%s" class="%s" enctype="multipart/form-data">',
+            URL::format(Config::getSiteRoot().'TRIGGER/givingimpact/post_opportunity'),
+            'opportunity-form',
+            $this->fetchParam('class')
+        );
+
+        $h = '<input type="hidden" name="%s" value="%s" />';
+        $tag_start .= sprintf($h, 'c', $this->fetchParam('campaign'));
+        $tag_start .= sprintf($h, 'rtp', base64_encode(URL::getCurrent(true)));
+
+        // If return parameter is used, add to hidden_fields
+
+        if($this->fetchParam('return', false) ) {
+            $tag_start .= sprintf($h, 'NXT', $this->fetchParam('return'));
+        } else {
+            $tag_start .= sprintf($h, 'NXT', URL::getCurrent(true));
+        }
+
+        // If notify parameter is user, add to hidden_fields
+
+        if ($this->fetchParam('notify', false)) {
+            $tag_start .= sprintf($h, 'NTF', $this->fetchParam('notify'));
+        }
+
+        // Create form wrapper
+
+        $content = $tag_start . $tagdata . '</form>';
+
+        return $content;
+    }
 
     private function gi() {
         if( $this->api_handle ) {
@@ -337,8 +462,9 @@ END;
 
         $this->private_key =  $this->fetchConfig('_private_key');
         $this->public_key = $this->fetchConfig('_public_key');
+        $this->end_point = $this->fetchConfig('_end_point', false);
 
-        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key);
+        $this->api_handle = new \MODL\GivingImpact($this->user_agent, $this->private_key, $this->end_point);
 
         return $this->api_handle;
     }
@@ -379,6 +505,8 @@ END;
                 $dir = $temp[1];
             }
         }
+
+        $sort .= '|'.$dir;
 
         return $sort;
     }

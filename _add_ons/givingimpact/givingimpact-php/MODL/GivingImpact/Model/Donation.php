@@ -44,6 +44,7 @@ class Donation extends \MODL\GivingImpact\Model {
     public $custom_responses = false;
     public $donation_date = false;
     public $card = false;
+    public $refunded = false;
 
 	protected $path = false;
 
@@ -51,6 +52,7 @@ class Donation extends \MODL\GivingImpact\Model {
 
     private $campaign_token;
     private $opportunity_token;
+    private $supporter_token;
 
 	public function __construct($c, $data = false) {
 		$this->container = $c;
@@ -76,7 +78,7 @@ class Donation extends \MODL\GivingImpact\Model {
 
 		$rc = $this->container->restClient;
 
-        if( !$this->campaign_token && !$this->opportunity_token ) {
+        if( !$this->campaign_token && !$this->opportunity_token && !$this->supporter_token ) {
             $rc->url = sprintf(
                 '%s/v2/donations',
                 $rc->url
@@ -86,6 +88,17 @@ class Donation extends \MODL\GivingImpact\Model {
                 '%s/v2/campaigns/%s/donations',
                 $rc->url,
                 $this->campaign_token
+            );
+        } elseif( $this->supporter_token ) {
+            $rc->url = sprintf(
+                '%s/v2/supporters/%s/donations',
+                $rc->url,
+                $this->supporter_token
+            );
+        } elseif( array_key_exists('supporter', $this->properties) && $this->properties['supporter'] ) {
+            $rc->url = sprintf(
+                '%s/v2/donations',
+                $rc->url
             );
         } else {
             $rc->url = sprintf(
@@ -118,7 +131,7 @@ class Donation extends \MODL\GivingImpact\Model {
         if( !$data ) {
             $data = array();
             foreach( $this->publicProperties() as $prop ) {
-                if( $prop == 'campaign_token' || $prop == 'opporunity_token' ) {
+                if( $prop == 'campaign_token' || $prop == 'opportunity_token' ) {
                     continue;
                 }
                 $data[$prop] = $this->$prop;
@@ -129,8 +142,8 @@ class Donation extends \MODL\GivingImpact\Model {
 
         if( $this->campaign_token ) {
             $data['campaign'] = $this->campaign_token;
-        } elseif( $this->opporunity_token ) {
-            $data['opporunity'] = $this->opporunity_token;
+        } elseif( $this->opportunity_token ) {
+            $data['opportunity'] = $this->opportunity_token;
         }
 
         $data['contact'] = $data['contact'] ? '1' : '0';
@@ -204,6 +217,21 @@ class Donation extends \MODL\GivingImpact\Model {
 
 	    return $this;
 	}
+
+    /**
+     * Set parent supporter
+     * @param  String $token
+     * @return Object        this
+     */
+    public function supporter($token) {
+        if( strpos($token, '@') !== false ) {
+            $this->properties['supporter'] = $token;
+        } else {
+            $this->supporter_token = $token;
+        }
+
+        return $this;
+    }
 
     public function __get($k) {
         $f = sprintf('__%s', $k);
