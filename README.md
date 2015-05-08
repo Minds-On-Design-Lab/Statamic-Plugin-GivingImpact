@@ -11,7 +11,7 @@ For more about Giving Impact and to view our full documentation and learning rea
 
 **Developed By:** Minds On Design Lab - http://mod-lab.com<br />
 **Version:** 1.1<br />
-**Copyright:** Copyright &copy; 2010-2014 Minds On Design Lab<br />
+**Copyright:** Copyright &copy; 2010-2015 Minds On Design Lab<br />
 **License:** Licensed under the MIT license - Please refer to LICENSE
 
 ## Requirements
@@ -21,7 +21,7 @@ For more about Giving Impact and to view our full documentation and learning rea
 * Statamic
 * A [Giving Impact](http://givingimpact.com) account.
     * Supports v2 of API
-* Tested in Statamic 1.7.8
+* Tested in Statamic 1.10.2
 
 ### Menu
 
