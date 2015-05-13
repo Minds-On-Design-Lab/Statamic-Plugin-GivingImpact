@@ -46,7 +46,7 @@ class Donation extends \MODL\GivingImpact\Model {
     public $card = false;
     public $refunded = false;
 
-	protected $path = false;
+    protected $path = false;
 
     private $stack = array();
 
@@ -54,29 +54,29 @@ class Donation extends \MODL\GivingImpact\Model {
     private $opportunity_token;
     private $supporter_token;
 
-	public function __construct($c, $data = false) {
-		$this->container = $c;
+    public function __construct($c, $data = false) {
+        $this->container = $c;
 
-		if( $data ) {
-		    $this->assign($data);
-		}
-	}
+        if( $data ) {
+            $this->assign($data);
+        }
+    }
 
     /**
      * Fetch donation based
      * @param  boolean $token OPTIONAL
      * @return Array OR Object
      */
-	public function fetch($token = false) {
-		if( $token ) {
+    public function fetch($token = false) {
+        if( $token ) {
             $rc = $this->container->restClient;
             $rc->url = $rc->url.'/v2/donations/'.$token;
 
             $data = $rc->get($this->properties);
             return new $this($this->container, $data->donation);
-		}
+        }
 
-		$rc = $this->container->restClient;
+        $rc = $this->container->restClient;
 
         if( !$this->campaign_token && !$this->opportunity_token && !$this->supporter_token ) {
             $rc->url = sprintf(
@@ -95,7 +95,7 @@ class Donation extends \MODL\GivingImpact\Model {
                 $rc->url,
                 $this->supporter_token
             );
-        } elseif( array_key_exists('supporter', $this->properties) && $this->properties['supporter'] ) {
+        } elseif( array_key_exists('supporter', $this->properties) && $this->properties['supporter'] && !$this->opportunity_token ) {
             $rc->url = sprintf(
                 '%s/v2/donations',
                 $rc->url
@@ -109,15 +109,15 @@ class Donation extends \MODL\GivingImpact\Model {
 
         }
 
-		$data = $rc->get($this->properties);
-		$out = array();
+        $data = $rc->get($this->properties);
+        $out = array();
 
-		foreach( $data->donations as $d ) {
-		    $out[] = new $this($this->container, $d);
-		}
+        foreach( $data->donations as $d ) {
+            $out[] = new $this($this->container, $d);
+        }
 
-		return $out;
-	}
+        return $out;
+    }
 
     /**
      * Create new offline donation
@@ -201,22 +201,22 @@ class Donation extends \MODL\GivingImpact\Model {
      * @param  String $token
      * @return Object this
      */
-	public function campaign($token) {
-	    $this->campaign_token = $token;
+    public function campaign($token) {
+        $this->campaign_token = $token;
 
-	    return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set parent opportunity
      * @param  String $token
      * @return Object        this
      */
-	public function opportunity($token) {
-	    $this->opportunity_token = $token;
+    public function opportunity($token) {
+        $this->opportunity_token = $token;
 
-	    return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set parent supporter

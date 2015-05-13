@@ -151,14 +151,19 @@ class Plugin_givingimpact extends Plugin {
                     ->related($related)
                     ->fetch($campaign_token)
                     ->donations;
-            } elseif( $this->fetchParam('supporter', false) ) {
-                $donations = $this->gi()->donation
-                    ->supporter($this->fetchParam('supporter', false));
-            } else {
+            } elseif( $opportunity_token ) {
                 $donations = $this->gi()
                     ->opportunity
                     ->fetch($opportunity_token)
                     ->donations;
+            } else {
+                $donations = $this->gi()
+                    ->donations;
+            }
+
+            if( $this->fetchParam('supporter', false ) ) {
+                $donations = $donations
+                    ->supporter($this->fetchParam('supporter', false));
             }
 
             $donations = $donations
