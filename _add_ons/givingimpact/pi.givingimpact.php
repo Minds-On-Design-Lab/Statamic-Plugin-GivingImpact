@@ -157,13 +157,11 @@ class Plugin_givingimpact extends Plugin {
                     ->fetch($opportunity_token)
                     ->donations;
             } else {
-                $donations = $this->gi()
-                    ->donations;
+                $donations = $this->gi()->donation;
             }
 
-            if( $this->fetchParam('supporter', false ) ) {
-                $donations = $donations
-                    ->supporter($this->fetchParam('supporter', false));
+            if( $this->fetchParam('supporter', false) ) {
+                $donations->supporter($this->fetchParam('supporter', false));
             }
 
             $donations = $donations
